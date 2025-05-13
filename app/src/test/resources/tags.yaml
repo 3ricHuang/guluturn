@@ -1,0 +1,110 @@
+# ------------------------------------------------------------
+# Hierarchical Standard Tags for GuluTurn
+# ------------------------------------------------------------
+# - category   : top-level grouping (taste / ingredient / dietary / context / quality)
+# - tag        : unique machine-readable name (snake_case)
+# - polarity   : positive | negative
+# - strength   : hard | soft   # hard → must block, soft → affects ranking only
+# - description: concise English description for GPT and developers
+# ------------------------------------------------------------
+
+taste:
+  sweet:
+    - tag: prefer_sweet_dishes
+      polarity: positive
+      strength: soft
+      description: The user prefers sweet food or desserts.
+    - tag: avoid_sweet_dishes
+      polarity: negative
+      strength: soft
+      description: The user wants to avoid sweet food.
+    - tag: quality_too_sweet
+      polarity: negative
+      strength: soft
+      description: The food is considered overly sweet.
+
+  salty:
+    - tag: prefer_savory_dishes
+      polarity: positive
+      strength: soft
+      description: The user prefers salty or umami-rich dishes.
+    - tag: avoid_savory_dishes
+      polarity: negative
+      strength: soft
+      description: The user wants to avoid salty dishes.
+    - tag: quality_too_salty
+      polarity: negative
+      strength: soft
+      description: The food is considered overly salty.
+
+  spicy:
+    - tag: prefer_spicy_dishes
+      polarity: positive
+      strength: soft
+      description: The user prefers spicy dishes.
+    - tag: avoid_spicy_dishes
+      polarity: negative
+      strength: soft
+      description: The user wants to avoid spicy dishes.
+    - tag: quality_too_spicy
+      polarity: negative
+      strength: soft
+      description: The food is considered too spicy.
+
+  greasy:
+    - tag: prefer_greasy_dishes
+      polarity: positive
+      strength: soft
+      description: The user enjoys oily or rich dishes.
+    - tag: avoid_greasy_dishes
+      polarity: negative
+      strength: soft
+      description: The user wants to avoid greasy dishes.
+    - tag: quality_too_greasy
+      polarity: negative
+      strength: soft
+      description: The food is considered too greasy.
+
+ingredient:
+  staple:
+    - {tag: prefer_noodles , polarity: positive, strength: soft, description: The user wants noodle-based dishes.}
+    - {tag: avoid_noodles  , polarity: negative, strength: soft, description: The user wants to avoid noodles.}
+    - {tag: prefer_rice    , polarity: positive, strength: soft, description: The user wants rice-based dishes.}
+    - {tag: avoid_rice     , polarity: negative, strength: soft, description: The user wants to avoid rice.}
+
+  protein:
+    - {tag: prefer_meat   , polarity: positive, strength: soft, description: The user prefers dishes containing meat.}
+    - {tag: avoid_meat    , polarity: negative, strength: soft, description: The user wants to avoid all meat.}
+    - {tag: prefer_beef   , polarity: positive, strength: soft, description: The user wants beef dishes.}
+    - {tag: avoid_beef    , polarity: negative, strength: soft, description: The user does not eat beef.}
+    - {tag: prefer_pork   , polarity: positive, strength: soft, description: The user wants pork dishes.}
+    - {tag: avoid_pork    , polarity: negative, strength: soft, description: The user does not eat pork.}
+    - {tag: prefer_seafood, polarity: positive, strength: soft, description: The user wants seafood.}
+    - {tag: avoid_seafood , polarity: negative, strength: soft, description: The user does not eat seafood.}
+
+dietary:
+  - {tag: need_vegetarian_options, polarity: positive, strength: hard, description: The user requires vegetarian options.}
+  - {tag: no_vegetarian_options , polarity: negative, strength: hard, description: The restaurant offers no vegetarian dishes.}
+  - {tag: need_halal_options    , polarity: positive, strength: hard, description: The user requires Halal options.}
+  - {tag: no_halal_options      , polarity: negative, strength: hard, description: The restaurant offers no Halal food.}
+  - {tag: allergy_concern       , polarity: negative, strength: hard, description: Potential allergens are a concern.}
+
+context:
+  price:
+    - {tag: too_expensive , polarity: negative, strength: soft, description: The restaurant is perceived as too expensive.}
+  portion:
+    - {tag: portion_too_small , polarity: negative, strength: soft, description: The portion size is too small.}
+    - {tag: portion_too_large , polarity: negative, strength: soft, description: The portion size is too large.}
+  environment:
+    - {tag: dirty_environment    , polarity: negative, strength: soft, description: The restaurant looks unclean.}
+    - {tag: poor_service         , polarity: negative, strength: soft, description: Service is slow or rude.}
+    - {tag: too_crowded          , polarity: negative, strength: soft, description: The venue is overly crowded.}
+    - {tag: long_wait_time       , polarity: negative, strength: soft, description: Long wait times are expected.}
+    - {tag: hard_to_find_parking , polarity: negative, strength: soft, description: Parking is difficult to find.}
+  availability:
+    - {tag: closed_today , polarity: negative, strength: hard, description: The restaurant is closed today.}
+  mood:
+    - {tag: not_in_the_mood, polarity: negative, strength: soft, description: The user is not in the mood for this cuisine.}
+
+quality:
+  - {tag: unhealthy, polarity: negative, strength: soft, description: The food is perceived as unhealthy or overly processed.}
