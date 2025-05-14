@@ -18,17 +18,21 @@ taste:
       polarity: negative
       strength: soft
       description: The user wants to avoid sweet food.
+    - tag: avoid_too_sweet
+      polarity: negative
+      strength: soft
+      description: The user wants to avoid dishes that are overly sweet.
     - tag: quality_too_sweet
       polarity: negative
       strength: soft
       description: The food is considered overly sweet.
 
   salty:
-    - tag: prefer_savory_dishes
+    - tag: prefer_salty_dishes
       polarity: positive
       strength: soft
       description: The user prefers salty or umami-rich dishes.
-    - tag: avoid_savory_dishes
+    - tag: avoid_salty_dishes
       polarity: negative
       strength: soft
       description: The user wants to avoid salty dishes.
@@ -64,6 +68,46 @@ taste:
       polarity: negative
       strength: soft
       description: The food is considered too greasy.
+
+  fresh:
+    - tag: prefer_fresh_dishes
+      polarity: positive
+      strength: soft
+      description: The user prefers fresh, light, or clean-tasting dishes.
+    - tag: avoid_fresh_dishes
+      polarity: negative
+      strength: soft
+      description: The user wants to avoid light or fresh-tasting dishes.
+
+  temperature:
+    - tag: prefer_cold_items
+      polarity: positive
+      strength: soft
+      description: The user prefers cold dishes or drinks.
+    - tag: avoid_cold_items
+      polarity: negative
+      strength: soft
+      description: The user wants to avoid cold dishes or drinks.
+    - tag: prefer_hot_items
+      polarity: positive
+      strength: soft
+      description: The user prefers hot dishes or drinks.
+    - tag: avoid_hot_items
+      polarity: negative
+      strength: soft
+      description: The user wants to avoid hot dishes or drinks.
+    - tag: quality_too_cold
+      polarity: negative
+      strength: soft
+      description: The item is too cold (below expected temperature).
+    - tag: quality_lukewarm
+      polarity: negative
+      strength: soft
+      description: The item is lukewarm (should be hotter).
+    - tag: quality_too_hot
+      polarity: negative
+      strength: soft
+      description: The item is excessively hot and hard to consume.
 
 ingredient:
   staple:
@@ -105,6 +149,8 @@ context:
     - {tag: closed_today , polarity: negative, strength: hard, description: The restaurant is closed today.}
   mood:
     - {tag: not_in_the_mood, polarity: negative, strength: soft, description: The user is not in the mood for this cuisine.}
+  time:
+    - {tag: prefer_quick_meal, polarity: positive, strength: soft, description: The user prefers meals that can be eaten quickly or are fast to prepare.}
 
 quality:
   - {tag: unhealthy, polarity: negative, strength: soft, description: The food is perceived as unhealthy or overly processed.}
