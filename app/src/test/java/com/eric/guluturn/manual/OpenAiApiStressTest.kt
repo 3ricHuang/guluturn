@@ -25,7 +25,7 @@ class OpenAiApiStressTest {
     private val apiKey = System.getenv("OPENAI_API_KEY") ?: ""
 
     /** The OpenAI model instance configured with authentication and model type. */
-    private val model = OpenAiModels(apiKey, model = "gpt-3.5-turbo")
+    private val model = OpenAiModels(apiKey, model = "gpt-4o")
 
     /** The tag generator implementation that uses the OpenAI API. */
     private val generator = OpenAiTagGenerator(model)
@@ -53,7 +53,7 @@ class OpenAiApiStressTest {
                     val result: OpenAiResponseParsed = generator.generateStructuredTags(input)
 
                     println("Parsed general tags: ${result.generalTags}")
-                    println("Parsed specific tags: ${result.specificTags.map { it.tag }}")
+                    println("Parsed specific tags: " + result.specificTags.joinToString { "${it.tag} (${it.polarity})" })
 
                     result.generalTags.forEach {
                         assertTrue(it in allowedGeneralTags, "Invalid general tag: $it")

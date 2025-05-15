@@ -40,7 +40,7 @@ object PromptTemplates {
         ===== GENERAL TAGS RULES =====
         - Select ONLY from the allowed_tags list shown below.
         - DO NOT invent, rephrase, or hallucinate any tag names. Use only those provided.
-        - DO NOT transform into "quality_*" tags unless explicitly listed.
+        - DO NOT create tags like "quality_not_too_sweet", "avoid_too_much_meat", or similar variants.
         - Tag names are case-sensitive and must match exactly.
         - You MUST assign at least one general_tag. If no good match exists, fallback to ["not_in_the_mood"].
 
@@ -71,10 +71,22 @@ object PromptTemplates {
 
         ===== SPECIFIC TAGS RULES =====
         - Extract short verbatim phrases (1–6 characters) from the input.
-        - Translate each to English.
+        - Translate each to English using consistent vocabulary.
+            e.g.,
+            "太甜" → "too sweet"
+            "太鹹" → "too salty"
+            "太油" → "too greasy"
+            "清爽" → "refreshing"
         - Assign polarity:
             "positive" → shows preference, desire, or acceptance.
             "negative" → shows rejection, avoidance, or dislike.
+
+        ===== FORMAT CONSTRAINTS =====
+        - Output must be raw JSON only. DO NOT include:
+            - Markdown (e.g., ```json)
+            - Comments
+            - Preamble or explanation text
+            - Extra newlines or trailing text
 
         ===== EXAMPLE =====
         Input: 我今天想吃點清爽的，太油太鹹都不行

@@ -10,7 +10,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.MediaType.Companion.toMediaType
 
-class OpenAiModels(private val apiKey: String, private val model: String = "gpt-3.5-turbo") {
+class OpenAiModels(private val apiKey: String, private val model: String = "gpt-4o") {
 
     suspend fun callOpenAiApi(prompt: String): String = withContext(Dispatchers.IO) {
         val requestBody = buildRequestBody(prompt)
@@ -33,8 +33,12 @@ class OpenAiModels(private val apiKey: String, private val model: String = "gpt-
     private fun buildRequestBody(prompt: String): okhttp3.RequestBody {
         val json = Json.encodeToString(
             OpenAiRequestBody(
+                model = model,
                 messages = listOf(ChatMessage("user", prompt)),
-                model = model
+                temperature = 0.0,
+                topP = 1.0,
+                frequencyPenalty = 0.0,
+                presencePenalty = 0.0
             )
         )
         return json.toRequestBody("application/json".toMediaType())
