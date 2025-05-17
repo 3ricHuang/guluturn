@@ -1,4 +1,6 @@
 package com.eric.guluturn.filter.exceptions
 
-class FilterRuleException {
-}
+class FilterRuleException(
+    message: String,
+    cause: Throwable? = null
+) : RuntimeException(message, cause)
