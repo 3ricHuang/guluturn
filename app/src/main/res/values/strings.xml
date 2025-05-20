@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">guluturn</string>
+    <string name="login_button">Log in</string>
+    <string name="api_key_hint">OpenAI API Key</string>
+    <string name="api_key_placeholder">sk-...</string>
+    <string name="logo_description">GuluTurn Logo</string>
+    <string name="profile_age_gender">%1$d · %2$s</string>
+    <string name="profile_selector_title">Select Your Profile</string>
+    <string name="add_profile">Add New Profile</string>
+    <string name="profile_creation_title">Create New Profile</string>
+    <string name="label_name">Name</string>
+    <string name="label_age">Age</string>
+    <string name="label_gender">Gender</string>
+    <string name="button_create_profile">Create Profile</string>
+    <string name="error_fill_all_fields">Please fill all fields</string>
+    <string name="error_invalid_data">Invalid age or gender</string>
+    <string name="error_missing_api_key">API key missing</string>
+    <string name="success_profile_created">Profile created successfully</string>
+    <string name="profile_picture">Profile picture</string>
 </resources>

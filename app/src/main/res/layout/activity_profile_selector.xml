@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="?android:colorBackground">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/profileTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/profile_selector_title"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/recyclerView"
+        android:layout_marginBottom="12dp" />
+
+    <!-- RecyclerView (Grid) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="96dp"
+        app:layout_constraintTop_toBottomOf="@id/profileTitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Empty state (shown when no profiles) -->
+    <TextView
+        android:id="@+id/emptyStateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No profiles yet. Tap + to create one."
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/profileTitle"
+        app:layout_constraintBottom_toTopOf="@id/fabAdd"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- Floating Action Button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/add_profile"
+        android:src="@drawable/ic_profile_add"
+        app:tint="@android:color/white"
+        app:backgroundTint="@color/guluturn_primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="24dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

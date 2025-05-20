@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App theme using Material3 -->
+    <style name="Theme.Guluturn" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Brand colors -->
+        <item name="colorPrimary">@color/guluturn_primary</item>
+        <item name="colorOnPrimary">@color/guluturn_on_primary</item>
+        <item name="android:colorBackground">@color/guluturn_background</item>
+        <item name="colorSurface">@color/guluturn_surface</item>
+        <item name="colorOnSurface">@color/guluturn_on_surface</item>
+    </style>
 
-    <style name="Theme.Guluturn" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="RoundedCornerImageStyle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
 </resources>

@@ -1,4 +1,10 @@
 package com.eric.guluturn.common.enums
 
-class Gender {
+/**
+ * Represents the user's gender (used for personalization).
+ */
+enum class Gender {
+    MALE,
+    FEMALE,
+    OTHER
 }
