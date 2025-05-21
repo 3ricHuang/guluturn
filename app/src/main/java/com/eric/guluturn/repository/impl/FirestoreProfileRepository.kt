@@ -62,12 +62,17 @@ class FirestoreProfileRepository(
 
             // Create reverse link for profile lookup under the API key (optional, recoverable)
             try {
-                FirestoreHelper.apiKeyToUserLink(apiKey, profile.uuid)
-                    .set(mapOf("linked" to true))
+                val linkRef = FirestoreHelper.apiKeyToUserLink(apiKey, profile.uuid)
+                println("DEBUG: Writing reverse link to path: ${linkRef.path}")
+
+                linkRef.set(mapOf("createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()))
                     .await()
+
                 println("DEBUG: apiKeyToUserLink write successful")
             } catch (e: Exception) {
-                println("WARNING: apiKeyToUserLink write failed (non-blocking): ${e.message}")
+                println("ERROR: apiKeyToUserLink write FAILED: ${e.message}")
+                e.printStackTrace()
+                throw e
             }
 
         } catch (e: Exception) {
