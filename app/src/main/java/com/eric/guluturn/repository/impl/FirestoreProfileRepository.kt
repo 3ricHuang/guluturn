@@ -6,6 +6,11 @@ import com.eric.guluturn.data.firestore.FirestoreHelper
 import com.eric.guluturn.repository.iface.IProfileRepository
 import com.google.firebase.firestore.Source
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
+import com.eric.guluturn.common.constants.MAX_PROFILES_PER_API_KEY
+import com.eric.guluturn.common.errors.MaxProfilesExceededException
 
 /**
  * Firestore-based implementation of IProfileRepository using split schema.
@@ -15,6 +20,7 @@ class FirestoreProfileRepository(
     private val context: Context
 ) : IProfileRepository {
 
+    private val firestore = FirebaseFirestore.getInstance()
     private var currentProfile: UserProfile? = null
 
     override suspend fun getAllProfiles(apiKey: String): List<UserProfile> {
@@ -33,61 +39,57 @@ class FirestoreProfileRepository(
 
     override suspend fun saveProfile(profile: UserProfile) {
         val apiKey = getApiKeyOrThrow()
-        println("DEBUG: saveProfile() invoked with apiKey = $apiKey, uuid = ${profile.uuid}")
+        val uuid = profile.uuid
 
-        try {
-            // Attempt to write the API key root document (metadata, optional)
-            try {
-                FirestoreHelper.apiUserLinkDocument(apiKey)
-                    .set(
-                        mapOf("createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()),
-                        com.google.firebase.firestore.SetOptions.merge()
-                    )
-                    .await()
-                println("DEBUG: apiUserLinkDocument write successful")
-            } catch (e: Exception) {
-                println("WARNING: apiUserLinkDocument write failed: ${e.message}")
+        firestore.runTransaction { txn ->
+            // Get document references
+            val linkDocRef = FirestoreHelper.apiUserLinkDocument(apiKey)
+            val userProfileRef = FirestoreHelper.userProfileDocument(uuid)
+            val reverseLinkRef = FirestoreHelper.apiKeyToUserLink(apiKey, uuid)
+
+            // Get current profile count (if doc exists)
+            val linkDocSnap = txn.get(linkDocRef)
+            val currentCount = linkDocSnap.getLong("profileCount")?.toInt() ?: 0
+
+            if (currentCount >= MAX_PROFILES_PER_API_KEY) {
+                throw MaxProfilesExceededException()
             }
 
-            // Main user profile write (required for system correctness)
-            try {
-                FirestoreHelper.userProfileDocument(profile.uuid)
-                    .set(profile)
-                    .await()
-                println("DEBUG: userProfileDocument write successful")
-            } catch (e: Exception) {
-                println("ERROR: Failed to write userProfile document. Aborting saveProfile.")
-                throw e
-            }
+            // 1. Write profile
+            txn.set(userProfileRef, profile)
 
-            // Create reverse link for profile lookup under the API key (optional, recoverable)
-            try {
-                val linkRef = FirestoreHelper.apiKeyToUserLink(apiKey, profile.uuid)
-                println("DEBUG: Writing reverse link to path: ${linkRef.path}")
+            // 2. Write reverse link
+            txn.set(reverseLinkRef, mapOf("createdAt" to FieldValue.serverTimestamp()))
 
-                linkRef.set(mapOf("createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()))
-                    .await()
-
-                println("DEBUG: apiKeyToUserLink write successful")
-            } catch (e: Exception) {
-                println("ERROR: apiKeyToUserLink write FAILED: ${e.message}")
-                e.printStackTrace()
-                throw e
-            }
-
-        } catch (e: Exception) {
-            println("ERROR: saveProfile terminated due to exception: ${e.message}")
-            throw e
-        }
+            // 3. Update count in root doc
+            txn.set(linkDocRef, mapOf(
+                "createdAt" to FieldValue.serverTimestamp(),
+                "profileCount" to currentCount + 1,
+                "uuids.$uuid" to true
+            ), SetOptions.merge())
+        }.await()
     }
-
-
 
     override suspend fun deleteProfile(uuid: String) {
         val apiKey = getApiKeyOrThrow()
 
-        FirestoreHelper.userProfileDocument(uuid).delete().await()
-        FirestoreHelper.apiKeyToUserLink(apiKey, uuid).delete().await()
+        firestore.runTransaction { txn ->
+            val userProfileRef = FirestoreHelper.userProfileDocument(uuid)
+            val reverseLinkRef = FirestoreHelper.apiKeyToUserLink(apiKey, uuid)
+            val linkDocRef = FirestoreHelper.apiUserLinkDocument(apiKey)
+
+            val linkDocSnap = txn.get(linkDocRef)
+            val currentCount = linkDocSnap.getLong("profileCount")?.toInt() ?: 1
+            val newCount = (currentCount - 1).coerceAtLeast(0)
+
+            txn.delete(userProfileRef)
+            txn.delete(reverseLinkRef)
+
+            txn.set(linkDocRef, mapOf(
+                "profileCount" to newCount,
+                "uuids.$uuid" to FieldValue.delete()
+            ), SetOptions.merge())
+        }.await()
     }
 
     override suspend fun getCurrentProfile(): UserProfile? = currentProfile

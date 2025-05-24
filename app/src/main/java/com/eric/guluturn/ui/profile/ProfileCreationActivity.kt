@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.eric.guluturn.R
 import com.eric.guluturn.common.enums.Gender
+import com.eric.guluturn.common.errors.MaxProfilesExceededException
 import com.eric.guluturn.common.models.UserProfile
 import com.eric.guluturn.common.storage.ApiKeyStorage
 import com.eric.guluturn.databinding.ActivityProfileCreationBinding
@@ -40,6 +41,26 @@ class ProfileCreationActivity : ComponentActivity() {
 
         setupGenderDropdown()
 
+        val apiKey = ApiKeyStorage.getSavedApiKey(applicationContext)
+        if (apiKey == null) {
+            Toast.makeText(this, R.string.error_missing_api_key, Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        viewModel.checkProfileLimit(apiKey)
+
+        viewModel.isProfileLimitReached.observe(this) { isReached ->
+            binding.createProfileButton.isEnabled = !isReached
+            if (isReached) {
+                Toast.makeText(
+                    this,
+                    "You’ve reached the profile limit. Please delete an existing profile before creating a new one.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
         binding.createProfileButton.setOnClickListener {
             val name = binding.nameInput.text.toString().trim()
             val ageText = binding.ageInput.text.toString().trim()
@@ -58,14 +79,6 @@ class ProfileCreationActivity : ComponentActivity() {
                 return@setOnClickListener
             }
 
-            val apiKey = ApiKeyStorage.getSavedApiKey(applicationContext)
-            println("DEBUG: Read API key in ProfileCreationActivity = $apiKey")
-            if (apiKey == null) {
-                Toast.makeText(this, R.string.error_missing_api_key, Toast.LENGTH_SHORT).show()
-                finish()
-                return@setOnClickListener
-            }
-
             val newProfile = UserProfile(
                 name = name,
                 age = age,
@@ -75,10 +88,7 @@ class ProfileCreationActivity : ComponentActivity() {
 
             lifecycleScope.launch {
                 try {
-                    // Save the newly created user profile to the remote repository (Firestore)
                     viewModel.saveProfile(newProfile)
-
-                    // Mark this profile as the currently selected one for downstream usage
                     viewModel.selectProfile(newProfile)
 
                     Toast.makeText(
@@ -87,19 +97,26 @@ class ProfileCreationActivity : ComponentActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    // Reserve transition to the main recommendation screen after profile creation
-                    // TODO: Replace GuluRecommendationActivity with your actual recommendation activity
                     startActivity(intent)
-
-                    // Finish this activity to remove it from the back stack
                     finish()
                 } catch (e: Exception) {
-                    Toast.makeText(
-                        this@ProfileCreationActivity,
-                        "Failed to create profile: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    e.printStackTrace()
+                    when (e) {
+                        is MaxProfilesExceededException -> {
+                            Toast.makeText(
+                                this@ProfileCreationActivity,
+                                "You’ve reached the limit of 6 profiles for this API key. Please delete an existing one before creating a new profile.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        else -> {
+                            Toast.makeText(
+                                this@ProfileCreationActivity,
+                                "Failed to create profile: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            e.printStackTrace()
+                        }
+                    }
                 }
             }
         }
