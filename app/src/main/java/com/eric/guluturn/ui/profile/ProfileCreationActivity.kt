@@ -120,6 +120,11 @@ class ProfileCreationActivity : ComponentActivity() {
                 }
             }
         }
+
+        // Back button logic
+        binding.backButton.setOnClickListener {
+            finish()
+        }
     }
 
     private fun setupGenderDropdown() {

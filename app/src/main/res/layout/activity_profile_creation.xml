@@ -8,116 +8,144 @@
     android:padding="24dp"
     android:background="?android:colorBackground">
 
-    <TextView
-        android:id="@+id/titleText"
+    <!-- Top and bottom guidelines to center the form vertically -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/topGuide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/profile_creation_title"
-        android:textColor="@android:color/black"
-        android:textAppearance="?attr/textAppearanceHeadlineSmall"
-        android:importantForAccessibility="yes"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="24dp" />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.2" />
 
-    <!-- Name input -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/nameInputLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/label_name"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxBackgroundMode="outline"
-        app:layout_constraintTop_toBottomOf="@id/titleText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/nameInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:minHeight="48dp"
-            android:maxLines="1" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Age input -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/ageInputLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/label_age"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxBackgroundMode="outline"
-        app:layout_constraintTop_toBottomOf="@id/nameInputLayout"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/ageInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:minHeight="48dp"
-            android:maxLines="1" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Gender label -->
-    <TextView
-        android:id="@+id/genderLabel"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/bottomGuide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/label_gender"
-        android:labelFor="@id/genderDropdown"
-        android:importantForAccessibility="yes"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintTop_toBottomOf="@id/ageInputLayout"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8" />
 
-    <!-- Gender dropdown -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/genderDropdownLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+    <!-- Main vertical form container -->
+    <LinearLayout
+        android:id="@+id/formContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/label_gender"
-        app:boxBackgroundMode="outline"
-        app:layout_constraintTop_toBottomOf="@id/genderLabel"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="@id/topGuide"
+        app:layout_constraintBottom_toBottomOf="@id/bottomGuide"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <AutoCompleteTextView
-            android:id="@+id/genderDropdown"
+        <!-- Title -->
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_creation_title"
+            android:textColor="@color/guluturn_on_surface"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:importantForAccessibility="yes"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Name input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nameInputLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none"
-            android:minHeight="48dp"
-            android:importantForAccessibility="yes" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:hint="@string/label_name"
+            android:layout_marginBottom="16dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxBackgroundMode="outline">
 
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/nameInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:minHeight="48dp"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Age input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/ageInputLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/label_age"
+            android:layout_marginBottom="16dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxBackgroundMode="outline">
 
-    <!-- Submit Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/createProfileButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/button_create_profile"
-        android:minHeight="48dp"
-        android:contentDescription="@string/button_create_profile"
-        style="@style/Widget.Material3.Button"
-        app:cornerRadius="24dp"
-        app:layout_constraintTop_toBottomOf="@id/genderDropdownLayout"
-        android:layout_marginTop="32dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/ageInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:minHeight="48dp"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Gender dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/genderDropdownLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:hint="@string/label_gender"
+            app:boxBackgroundMode="outline">
+
+            <AutoCompleteTextView
+                android:id="@+id/genderDropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:minHeight="48dp"
+                android:importantForAccessibility="yes" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Bottom action buttons -->
+        <LinearLayout
+            android:id="@+id/actionButtonLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/backButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:minHeight="48dp"
+                android:text="@string/button_back"
+                android:backgroundTint="@color/guluturn_secondary"
+                android:textColor="@color/guluturn_background"
+                style="@style/Widget.Material3.Button"
+                app:cornerRadius="24dp" />
+
+            <View
+                android:layout_width="16dp"
+                android:layout_height="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/createProfileButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:minHeight="48dp"
+                android:text="@string/button_create_profile"
+                android:textColor="@color/guluturn_background"
+                style="@style/Widget.Material3.Button"
+                app:cornerRadius="24dp" />
+        </LinearLayout>
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

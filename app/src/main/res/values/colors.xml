@@ -2,7 +2,7 @@
 <resources>
     <color name="guluturn_primary">#FF7043</color>
     <color name="guluturn_on_primary">#FFFFFF</color>
-    <color name="guluturn_secondary">#FFA270</color>
+    <color name="guluturn_secondary">#F7C28D</color>
     <color name="guluturn_success">#66BB6A</color>
     <color name="guluturn_error">#EF5350</color>
     <color name="guluturn_background">#FFF3E0</color>

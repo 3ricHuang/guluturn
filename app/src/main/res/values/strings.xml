@@ -17,4 +17,5 @@
     <string name="error_missing_api_key">API key missing</string>
     <string name="success_profile_created">Profile created successfully</string>
     <string name="profile_picture">Profile picture</string>
+    <string name="button_back">Back</string>
 </resources>
