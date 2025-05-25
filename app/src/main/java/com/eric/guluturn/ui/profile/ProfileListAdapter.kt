@@ -23,7 +23,7 @@ class ProfileListAdapter(
         fun bind(profile: UserProfile) {
             val context = binding.root.context
 
-            binding.profileIcon.setImageResource(R.drawable.ic_profile_default)
+            binding.profileIcon.setImageResource(R.drawable.baseline_account_box_24)
 
             val ageGenderLabel = context.getString(
                 R.string.profile_age_gender,
