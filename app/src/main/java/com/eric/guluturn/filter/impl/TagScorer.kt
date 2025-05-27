@@ -58,7 +58,7 @@ object TagScorer {
                     if (opp != null && opp in restaurantTags) score -= 2
                 }
                 "negative" -> {
-                    if (tag in restaurantTags) score += 2
+                    if (tag in restaurantTags) score -= 2
                     if (opp != null && opp in restaurantTags) score -= 2
                 }
             }

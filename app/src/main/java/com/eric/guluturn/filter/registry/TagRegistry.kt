@@ -49,6 +49,14 @@ object TagRegistry {
     }
 
     /**
+     * Checks if a tag is defined as a hard positive (polarity = positive, strength = hard).
+     */
+    fun isHardPositive(tag: String): Boolean {
+        val t = tagMap[tag] ?: return false
+        return t.polarity == "positive" && t.strength == "hard"
+    }
+
+    /**
      * Checks if a tag is defined as a soft positive (polarity = positive, strength = soft).
      */
     fun isSoftPositive(tag: String): Boolean {
