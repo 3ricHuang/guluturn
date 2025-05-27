@@ -8,4 +8,5 @@
     <color name="guluturn_background">#FFF3E0</color>
     <color name="guluturn_surface">#FFFFFF</color>
     <color name="guluturn_on_surface">#212121</color>
+    <color name="guluturn_brown">#6b3E26</color>
 </resources>

@@ -26,12 +26,19 @@ class StatefulFilterEngineImpl(
         val generalTags: List<String> = TagRegistry.extractGeneralTags(reason)
         val specificTags: List<SpecificTag> = TagRegistry.extractSpecificTags(reason)
 
-        return engine.updateAndFilter(
+        val filtered = engine.updateAndFilter(
             userGeneralTags = generalTags,
             userSpecificTags = specificTags,
             allRestaurants = restaurants
         ).mapNotNull { scored ->
             restaurants.find { it.id == scored.id }
+        }
+
+        return if (filtered.isEmpty()) {
+            println("DEBUG: Fallback triggered – filter returned empty, randomly selecting 6")
+            restaurants.shuffled().take(6)
+        } else {
+            filtered
         }
     }
 

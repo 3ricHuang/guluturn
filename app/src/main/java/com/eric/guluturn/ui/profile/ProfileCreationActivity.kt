@@ -97,6 +97,7 @@ class ProfileCreationActivity : ComponentActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
 
+                    val intent = Intent(this@ProfileCreationActivity, com.eric.guluturn.ui.roulette.RouletteActivity::class.java)
                     startActivity(intent)
                     finish()
                 } catch (e: Exception) {

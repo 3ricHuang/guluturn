@@ -72,4 +72,25 @@ class FirestoreRestaurantRepository : IRestaurantRepository {
             null
         }
     }
+
+    /**
+     * Retrieves a random subset of restaurants from Firestore.
+     *
+     * @param limit The number of restaurants to retrieve (default is 6).
+     * @return A randomly selected list of Restaurant objects.
+     */
+    suspend fun getRandomRestaurants(limit: Int = 6): List<Restaurant> {
+        return try {
+            db.collection("restaurants")
+                .get()
+                .await()
+                .shuffled()  // 🔹 Randomize order
+                .take(limit)
+                .mapNotNull { doc ->
+                    doc.toObject(Restaurant::class.java)?.copy(id = doc.id)
+                }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 }

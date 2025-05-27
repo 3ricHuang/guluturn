@@ -12,6 +12,7 @@ import com.eric.guluturn.common.storage.ApiKeyStorage
 import com.eric.guluturn.databinding.ActivityProfileSelectorBinding
 import com.eric.guluturn.repository.impl.FirestoreProfileRepository
 import com.eric.guluturn.ui.common.GridSpacingItemDecoration
+import com.eric.guluturn.ui.roulette.RouletteActivity
 import kotlinx.coroutines.launch
 
 class ProfileSelectorActivity : ComponentActivity() {
@@ -58,7 +59,9 @@ class ProfileSelectorActivity : ComponentActivity() {
             lifecycleScope.launch {
                 viewModel.selectProfile(profile)
                 Toast.makeText(this@ProfileSelectorActivity, "Selected: ${profile.name}", Toast.LENGTH_SHORT).show()
-                // TODO: navigate to main activity
+                val intent = Intent(this@ProfileSelectorActivity, RouletteActivity::class.java)
+                startActivity(intent)
+                finish()
             }
         }
         val spacingInPixels = resources.getDimensionPixelSize(R.dimen.profile_grid_spacing)
