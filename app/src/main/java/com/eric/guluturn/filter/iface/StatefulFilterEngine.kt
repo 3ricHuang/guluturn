@@ -1,6 +1,9 @@
 package com.eric.guluturn.filter.iface
 
-import com.eric.guluturn.filter.models.*
+import com.eric.guluturn.common.models.Restaurant
+import com.eric.guluturn.common.models.SpecificTag
+import com.eric.guluturn.filter.models.ScoredRestaurant
+import com.eric.guluturn.filter.models.FilterState
 import com.eric.guluturn.filter.impl.HardFilter
 import com.eric.guluturn.filter.impl.TagScorer
 import com.eric.guluturn.filter.impl.AdvancementSelector
@@ -20,7 +23,7 @@ class StatefulFilterEngine {
      * @param userGeneralTags Newly extracted general tags from this turn.
      * @param userSpecificTags Newly extracted specific tags from this turn.
      * @param allRestaurants The full list of candidate restaurants.
-     * @return A list of 5–7 restaurants matching current accumulated preferences.
+     * @return A list of 6 restaurants matching current accumulated preferences.
      */
     fun updateAndFilter(
         userGeneralTags: List<String>,

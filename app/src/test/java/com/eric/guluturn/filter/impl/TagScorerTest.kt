@@ -1,7 +1,5 @@
 package com.eric.guluturn.filter.impl
 
-import com.eric.guluturn.filter.models.Restaurant
-import com.eric.guluturn.filter.models.SpecificTag
 import com.eric.guluturn.filter.registry.TagRegistry
 import kotlin.test.Test
 import kotlin.test.assertEquals

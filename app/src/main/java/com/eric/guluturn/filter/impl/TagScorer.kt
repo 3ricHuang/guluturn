@@ -1,7 +1,7 @@
 package com.eric.guluturn.filter.impl
 
-import com.eric.guluturn.filter.models.Restaurant
-import com.eric.guluturn.filter.models.SpecificTag
+import com.eric.guluturn.common.models.Restaurant
+import com.eric.guluturn.common.models.SpecificTag
 import com.eric.guluturn.filter.models.ScoredRestaurant
 import com.eric.guluturn.filter.registry.TagRegistry
 
@@ -16,6 +16,7 @@ object TagScorer {
 
     /**
      * Scores each restaurant using user-provided tags.
+     *
      * @param userGeneralTags List of standardized general tags from user input.
      * @param userSpecificTags List of user-generated free-text tags with polarity.
      * @param candidates List of restaurants to be scored.
@@ -26,11 +27,11 @@ object TagScorer {
         userSpecificTags: List<SpecificTag>,
         candidates: List<Restaurant>
     ): List<ScoredRestaurant> {
-        return candidates.map { restaurant ->
-            val generalScore = scoreGeneral(userGeneralTags, restaurant.generalTags)
-            val specificScore = scoreSpecific(userSpecificTags, restaurant.specificTags)
+        return candidates.mapIndexed { idx, restaurant ->
+            val generalScore = scoreGeneral(userGeneralTags, restaurant.general_tags)
+            val specificScore = scoreSpecific(userSpecificTags, restaurant.specific_tags)
             ScoredRestaurant(
-                id = restaurant.id,
+                id = restaurant.name.ifBlank { idx.toString() }, // fallback if no Firestore ID
                 score = generalScore + specificScore
             )
         }.sortedByDescending { it.score }

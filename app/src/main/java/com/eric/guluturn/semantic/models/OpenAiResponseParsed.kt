@@ -2,6 +2,7 @@ package com.eric.guluturn.semantic.models
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
+import com.eric.guluturn.common.models.SpecificTag
 
 @Serializable
 data class OpenAiResponseParsed(
@@ -13,10 +14,4 @@ data class OpenAiResponseParsed(
 
     @SerialName("specific_tags")
     val specificTags: List<SpecificTag>
-)
-
-@Serializable
-data class SpecificTag(
-    val tag: String,
-    val polarity: String
 )

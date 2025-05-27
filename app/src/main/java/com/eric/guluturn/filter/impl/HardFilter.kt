@@ -1,6 +1,6 @@
 package com.eric.guluturn.filter.impl
 
-import com.eric.guluturn.filter.models.Restaurant
+import com.eric.guluturn.common.models.Restaurant
 import com.eric.guluturn.filter.registry.TagRegistry
 
 /**
@@ -36,7 +36,7 @@ object HardFilter {
 
         // Keep restaurants that do NOT contain any of the banned tags
         return candidates.filter { restaurant ->
-            val restaurantTags = restaurant.generalTags.toSet()
+            val restaurantTags = restaurant.general_tags.toSet()
             bannedTags.intersect(restaurantTags).isEmpty()
         }
     }

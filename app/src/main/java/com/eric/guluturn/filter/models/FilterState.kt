@@ -1,6 +1,7 @@
 package com.eric.guluturn.filter.models
 
 import kotlinx.serialization.Serializable
+import com.eric.guluturn.common.models.SpecificTag
 
 @Serializable
 data class FilterState(

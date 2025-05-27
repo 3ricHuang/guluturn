@@ -42,9 +42,11 @@ class LoginViewModel(
 
     fun verifyApiKey(apiKey: String, callback: (Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
+            val sanitizedKey = apiKey.trim()
+
             val request = Request.Builder()
                 .url("https://api.openai.com/v1/models")
-                .header("Authorization", "Bearer $apiKey")
+                .header("Authorization", "Bearer $sanitizedKey")
                 .build()
 
             val response = try {
