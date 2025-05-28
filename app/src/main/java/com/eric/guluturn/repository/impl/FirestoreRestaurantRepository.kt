@@ -84,7 +84,7 @@ class FirestoreRestaurantRepository : IRestaurantRepository {
             db.collection("restaurants")
                 .get()
                 .await()
-                .shuffled()  // 🔹 Randomize order
+                .shuffled()  // Randomize order
                 .take(limit)
                 .mapNotNull { doc ->
                     doc.toObject(Restaurant::class.java)?.copy(id = doc.id)

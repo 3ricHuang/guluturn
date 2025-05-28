@@ -25,7 +25,7 @@ class ProfileCreationActivity : ComponentActivity() {
     private lateinit var binding: ActivityProfileCreationBinding
 
     private val viewModel: ProfileViewModel by viewModels {
-        val repo = FirestoreProfileRepository(applicationContext)
+        val repo = FirestoreProfileRepository(this@ProfileCreationActivity)
         object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
@@ -90,6 +90,7 @@ class ProfileCreationActivity : ComponentActivity() {
                 try {
                     viewModel.saveProfile(newProfile)
                     viewModel.selectProfile(newProfile)
+                    ApiKeyStorage.saveSelectedProfileUuid(applicationContext, newProfile.uuid)
 
                     Toast.makeText(
                         this@ProfileCreationActivity,

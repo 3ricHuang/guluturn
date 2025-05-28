@@ -18,4 +18,11 @@
     <string name="success_profile_created">Profile created successfully</string>
     <string name="profile_picture">Profile picture</string>
     <string name="button_back">Back</string>
+    <string name="roulette_reason_prompt">Please enter your reason for rejection:</string>
+    <string name="roulette_reason_hint">e.g., Too spicy, I am vegetarian...</string>
+    <string name="roulette_cancel">Cancel</string>
+    <string name="roulette_confirm">Confirm</string>
+    <string name="roulette_accept">Accept</string>
+    <string name="roulette_reject">Reject</string>
+    <string name="roulette_reason_required">Please enter a reason before submitting.</string>
 </resources>

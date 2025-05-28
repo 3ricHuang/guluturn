@@ -31,7 +31,7 @@ object TagScorer {
             val generalScore = scoreGeneral(userGeneralTags, restaurant.general_tags)
             val specificScore = scoreSpecific(userSpecificTags, restaurant.specific_tags)
             ScoredRestaurant(
-                id = restaurant.name.ifBlank { idx.toString() }, // fallback if no Firestore ID
+                id = restaurant.id,
                 score = generalScore + specificScore
             )
         }.sortedByDescending { it.score }

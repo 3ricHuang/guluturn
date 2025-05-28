@@ -58,6 +58,7 @@ class ProfileSelectorActivity : ComponentActivity() {
         adapter = ProfileListAdapter { profile ->
             lifecycleScope.launch {
                 viewModel.selectProfile(profile)
+                ApiKeyStorage.saveSelectedProfileUuid(applicationContext, profile.uuid)
                 Toast.makeText(this@ProfileSelectorActivity, "Selected: ${profile.name}", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this@ProfileSelectorActivity, RouletteActivity::class.java)
                 startActivity(intent)

@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.eric.guluturn.common.constants.MAX_PROFILES_PER_API_KEY
 import com.eric.guluturn.common.errors.MaxProfilesExceededException
+import com.eric.guluturn.common.storage.ApiKeyStorage
 
 /**
  * Firestore-based implementation of IProfileRepository using split schema.
@@ -40,35 +41,47 @@ class FirestoreProfileRepository(
     override suspend fun saveProfile(profile: UserProfile) {
         val apiKey = getApiKeyOrThrow()
         val uuid = profile.uuid
+        println("DEBUG: saveProfile() called with apiKey = $apiKey, uuid = $uuid")
 
-        firestore.runTransaction { txn ->
-            // Get document references
-            val linkDocRef = FirestoreHelper.apiUserLinkDocument(apiKey)
-            val userProfileRef = FirestoreHelper.userProfileDocument(uuid)
-            val reverseLinkRef = FirestoreHelper.apiKeyToUserLink(apiKey, uuid)
+        try {
+            firestore.runTransaction { txn ->
+                println("DEBUG: Entered Firestore transaction block")
 
-            // Get current profile count (if doc exists)
-            val linkDocSnap = txn.get(linkDocRef)
-            val currentCount = linkDocSnap.getLong("profileCount")?.toInt() ?: 0
+                val linkDocRef = FirestoreHelper.apiUserLinkDocument(apiKey)
+                val userProfileRef = FirestoreHelper.userProfileDocument(uuid)
+                val reverseLinkRef = FirestoreHelper.apiKeyToUserLink(apiKey, uuid)
 
-            if (currentCount >= MAX_PROFILES_PER_API_KEY) {
-                throw MaxProfilesExceededException()
-            }
+                val linkDocSnap = txn.get(linkDocRef)
+                val currentCount = linkDocSnap.getLong("profileCount")?.toInt() ?: 0
+                println("DEBUG: currentCount retrieved = $currentCount")
 
-            // 1. Write profile
-            txn.set(userProfileRef, profile)
+                if (currentCount >= MAX_PROFILES_PER_API_KEY) {
+                    println("DEBUG: profile count exceeded, throwing exception")
+                    throw MaxProfilesExceededException()
+                }
 
-            // 2. Write reverse link
-            txn.set(reverseLinkRef, mapOf("createdAt" to FieldValue.serverTimestamp()))
+                txn.set(userProfileRef, profile)
+                println("DEBUG: user profile set")
 
-            // 3. Update count in root doc
-            txn.set(linkDocRef, mapOf(
-                "createdAt" to FieldValue.serverTimestamp(),
-                "profileCount" to currentCount + 1,
-                "uuids.$uuid" to true
-            ), SetOptions.merge())
-        }.await()
+                txn.set(reverseLinkRef, mapOf("createdAt" to FieldValue.serverTimestamp()))
+                println("DEBUG: reverse link set")
+
+                txn.set(linkDocRef, mapOf(
+                    "createdAt" to FieldValue.serverTimestamp(),
+                    "profileCount" to currentCount + 1,
+                    "uuids.$uuid" to true
+                ), SetOptions.merge())
+                println("DEBUG: link doc updated")
+
+            }.await()
+            println("DEBUG: Firestore transaction committed")
+
+        } catch (e: Exception) {
+            println("DEBUG: Exception during Firestore transaction: ${e.message}")
+            e.printStackTrace()
+        }
     }
+
 
     override suspend fun deleteProfile(uuid: String) {
         val apiKey = getApiKeyOrThrow()
@@ -100,9 +113,8 @@ class FirestoreProfileRepository(
     }
 
     private fun getApiKeyOrThrow(): String {
-        val shared = context.getSharedPreferences("guluturn_prefs", Context.MODE_PRIVATE)
-        val key = shared.getString("openai_api_key", null)
-        println("DEBUG: getApiKeyOrThrow() context = ${context::class.java.name}, apiKey = $key")
+        val key = ApiKeyStorage.getSavedApiKey(context.applicationContext)
+        println("DEBUG: getApiKeyOrThrow() apiKey = $key")
         require(!key.isNullOrBlank()) { "API key not set in SharedPreferences" }
         return key
     }
