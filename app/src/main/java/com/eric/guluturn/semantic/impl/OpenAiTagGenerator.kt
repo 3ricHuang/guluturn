@@ -2,6 +2,8 @@ package com.eric.guluturn.semantic.impl
 
 import com.eric.guluturn.semantic.exceptions.OpenAiTagException
 import com.eric.guluturn.semantic.iface.TagGenerator
+import com.eric.guluturn.semantic.iface.ISemanticEngine
+import com.eric.guluturn.semantic.iface.ParsedUserInput
 import com.eric.guluturn.semantic.models.*
 import com.eric.guluturn.semantic.templates.PromptTemplates
 import kotlinx.coroutines.Dispatchers
@@ -11,14 +13,14 @@ import kotlinx.serialization.json.Json
 
 class OpenAiTagGenerator(
     private val apiModel: OpenAiModels
-) : TagGenerator {
+) : TagGenerator, ISemanticEngine {
 
     private val jsonParser = Json {
         ignoreUnknownKeys = true
     }
 
     /**
-     * Return only general tags (for legacy interface use).
+     * Legacy method: only return general tags.
      */
     override suspend fun generateTags(input: String): List<String> = withContext(Dispatchers.IO) {
         try {
@@ -31,7 +33,7 @@ class OpenAiTagGenerator(
     }
 
     /**
-     * Return structured result: user_input + general_tags + specific_tags.
+     * Full parsing method used internally.
      */
     suspend fun generateStructuredTags(input: String): OpenAiResponseParsed = withContext(Dispatchers.IO) {
         try {
@@ -46,5 +48,16 @@ class OpenAiTagGenerator(
         } catch (e: SerializationException) {
             throw OpenAiTagException("Failed to parse OpenAI response: ${e.message}")
         }
+    }
+
+    /**
+     * Unified interface for semantic input parsing.
+     */
+    override suspend fun parseInput(reason: String): ParsedUserInput = withContext(Dispatchers.IO) {
+        val parsed = generateStructuredTags(reason)
+        return@withContext ParsedUserInput(
+            generalTags = parsed.generalTags,
+            specificTags = parsed.specificTags
+        )
     }
 }

@@ -53,4 +53,15 @@ class StatefulFilterEngineImpl(
      * Exposes the current filtering state (for debug or history).
      */
     fun getState() = engine.getState()
+
+    fun updateAndFilter(
+        userGeneralTags: List<String>,
+        userSpecificTags: List<SpecificTag>,
+        allRestaurants: List<Restaurant>
+    ): List<Restaurant> {
+        return engine.updateAndFilter(userGeneralTags, userSpecificTags, allRestaurants)
+            .mapNotNull { scored ->
+                allRestaurants.find { it.id == scored.id }
+            }
+    }
 }
