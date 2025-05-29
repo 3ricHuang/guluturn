@@ -67,7 +67,6 @@ class RouletteViewModel(
             }
 
             _restaurants.value = result
-            spinCount.value = 0
         }
     }
 
