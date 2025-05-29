@@ -35,6 +35,11 @@ class RouletteActivity : ComponentActivity() {
         binding = ActivityRouletteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.btnMenu.setOnClickListener {
+            val intent = Intent(this, com.eric.guluturn.ui.profile.ProfileSettingsActivity::class.java)
+            startActivity(intent)
+        }
+
         adapter = RestaurantCardAdapter()
         binding.objectArea.layoutManager = GridLayoutManager(this, 2)
         binding.objectArea.adapter = adapter

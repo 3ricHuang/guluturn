@@ -25,4 +25,26 @@
     <string name="roulette_accept">Accept</string>
     <string name="roulette_reject">Reject</string>
     <string name="roulette_reason_required">Please enter a reason before submitting.</string>
+    <string name="profile_settings_title">Edit your profile</string>
+    <string name="label_api_key">API Key</string>
+    <string name="api_key_change_hint">Changing your key will trigger validation</string>
+    <string name="button_save">Save</string>
+    <string name="button_logout">Logout</string>
+    <string name="button_delete">Delete</string>
+    <string name="confirm_delete_title">Confirm Delete</string>
+    <string name="confirm_delete_message">Are you sure you want to delete this profile? This action cannot be undone.</string>
+    <string name="button_confirm">Delete</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="delete_success">Profile deleted successfully</string>
+    <string name="delete_failed">Failed to delete profile</string>
+    <string name="delete_profile_confirmation">Are you sure you want to delete this profile?</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="profile_deleted">Profile deleted.</string>
+    <string name="profile_delete_failed">Failed to delete profile: %1$s</string>
+    <string name="profile_fill_warning">Please fill in all fields correctly.</string>
+    <string name="profile_update_success">Profile updated successfully.</string>
+    <string name="profile_update_failure">Failed to update profile.</string>
+    <string name="logged_out">Logged out.</string>
+
 </resources>

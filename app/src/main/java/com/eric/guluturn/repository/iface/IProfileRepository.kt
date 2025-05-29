@@ -53,4 +53,29 @@ interface IProfileRepository {
      * @return The current [UserProfile] or null if unset.
      */
     suspend fun getCurrentProfile(): UserProfile?
+
+    /**
+     * Saves a profile under the specified API key (not necessarily current user key).
+     * Used for profile migration or reassignment.
+     *
+     * @param apiKey The API key to associate the profile with.
+     * @param profile The profile to save.
+     */
+    suspend fun saveProfileWithKey(apiKey: String, profile: UserProfile)
+
+    /**
+     * Deletes the entire API key linkage entry if no profiles remain.
+     *
+     * @param apiKey The API key to remove from index.
+     */
+    suspend fun deleteApiKeyEntry(apiKey: String)
+
+    suspend fun deleteApiKeyLink(apiKey: String)
+
+    /**
+     * Removes only the API key to profile UUID mapping, without deleting the profile document itself.
+     * Used during API key transfer.
+     */
+    suspend fun removeProfileLinkFromKey(apiKey: String, uuid: String)
+
 }

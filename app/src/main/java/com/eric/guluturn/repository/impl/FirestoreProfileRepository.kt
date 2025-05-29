@@ -139,4 +139,85 @@ class FirestoreProfileRepository(
             emptyList()
         }
     }
+
+    override suspend fun saveProfileWithKey(apiKey: String, profile: UserProfile) {
+        val uuid = profile.uuid
+        println("DEBUG: saveProfileWithKey() called with apiKey = $apiKey, uuid = $uuid")
+
+        try {
+            firestore.runTransaction { txn ->
+                val linkDocRef = FirestoreHelper.apiUserLinkDocument(apiKey)
+                val userProfileRef = FirestoreHelper.userProfileDocument(uuid)
+                val reverseLinkRef = FirestoreHelper.apiKeyToUserLink(apiKey, uuid)
+
+                val linkDocSnap = txn.get(linkDocRef)
+                val currentCount = linkDocSnap.getLong("profileCount")?.toInt() ?: 0
+
+                if (currentCount >= MAX_PROFILES_PER_API_KEY) {
+                    throw MaxProfilesExceededException()
+                }
+
+                val updatedProfile = profile.copy(currentApiKey = apiKey)
+
+                txn.set(userProfileRef, updatedProfile)
+                txn.set(reverseLinkRef, mapOf("createdAt" to FieldValue.serverTimestamp()))
+                txn.set(linkDocRef, mapOf(
+                    "createdAt" to FieldValue.serverTimestamp(),
+                    "profileCount" to currentCount + 1,
+                    "uuids.$uuid" to true
+                ), SetOptions.merge())
+            }.await()
+        } catch (e: Exception) {
+            println("DEBUG: Exception during saveProfileWithKey: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    override suspend fun deleteApiKeyEntry(apiKey: String) {
+        try {
+            println("DEBUG: deleteApiKeyEntry() called with apiKey = $apiKey")
+            FirestoreHelper.apiUserLinkDocument(apiKey).delete().await()
+        } catch (e: Exception) {
+            println("DEBUG: Exception during deleteApiKeyEntry: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Deletes the entire api_user_links/{apiKey} document.
+     */
+    override suspend fun deleteApiKeyLink(apiKey: String) {
+        try {
+            println("DEBUG: deleteApiKeyLink() called for apiKey = $apiKey")
+            FirestoreHelper.apiUserLinkDocument(apiKey).delete().await()
+        } catch (e: Exception) {
+            println("DEBUG: Failed to delete apiUserLinkDocument: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    override suspend fun removeProfileLinkFromKey(apiKey: String, uuid: String) {
+        try {
+            firestore.runTransaction { txn ->
+                val reverseLinkRef = FirestoreHelper.apiKeyToUserLink(apiKey, uuid)
+                val linkDocRef = FirestoreHelper.apiUserLinkDocument(apiKey)
+
+                val linkDocSnap = txn.get(linkDocRef)
+                val currentCount = linkDocSnap.getLong("profileCount")?.toInt() ?: 1
+                val newCount = (currentCount - 1).coerceAtLeast(0)
+
+                txn.delete(reverseLinkRef)
+                txn.set(linkDocRef, mapOf(
+                    "profileCount" to newCount,
+                    "uuids.$uuid" to FieldValue.delete()
+                ), SetOptions.merge())
+            }.await()
+        } catch (e: Exception) {
+            println("DEBUG: Exception in removeProfileLinkFromKey: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+
+
 }

@@ -29,6 +29,8 @@
         <!-- profile activities -->
         <activity android:name=".ui.profile.ProfileSelectorActivity" />
         <activity android:name=".ui.profile.ProfileCreationActivity" />
+        <activity android:name=".ui.profile.ProfileSettingsActivity" />
+
         <activity android:name=".ui.roulette.RouletteActivity" />
 
     </application>
