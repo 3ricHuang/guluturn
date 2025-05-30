@@ -64,4 +64,12 @@ class StatefulFilterEngineImpl(
                 allRestaurants.find { it.id == scored.id }
             }
     }
+
+    /**
+     * Resets the internal filter state (accumulated tags and rejections).
+     */
+    fun reset() {
+        engine.reset()
+    }
+
 }

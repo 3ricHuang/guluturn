@@ -1,110 +1,184 @@
 package com.eric.guluturn.ui.roulette
 
+import AcceptedRestaurant
+import InteractionRound
+import InteractionSession
+import LocationInfo
+import RestaurantCandidate
+import UserFeedback
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eric.guluturn.common.models.Restaurant
 import com.eric.guluturn.filter.impl.StatefulFilterEngineImpl
-import com.eric.guluturn.repository.impl.FirestoreRestaurantRepository
+import com.eric.guluturn.repository.iface.IInteractionSessionRepository
 import com.eric.guluturn.semantic.iface.ISemanticEngine
-import com.eric.guluturn.semantic.iface.ParsedUserInput
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel responsible for managing roulette-based restaurant recommendations.
- * Handles initialization, rejection feedback, and semantic filtering across rounds.
- */
 class RouletteViewModel(
     private val filterEngine: StatefulFilterEngineImpl,
-    private val semanticEngine: ISemanticEngine
+    private val semanticEngine: ISemanticEngine,
+    private val interactionSessionRepository: IInteractionSessionRepository,
+    private val currentUserUuid: String
 ) : ViewModel() {
 
     private val _restaurants = MutableLiveData<List<Restaurant>>()
     val restaurants: LiveData<List<Restaurant>> get() = _restaurants
 
     private var fullRestaurantPool: List<Restaurant> = emptyList()
-    val spinCount = MutableLiveData(0)
+    private val _spinCount = MutableLiveData(0)
+    val spinCount: LiveData<Int> get() = _spinCount
 
-    /**
-     * Initializes the view model with the initial restaurant pool.
-     * Randomly selects 6 candidates for the first spin.
-     */
+    private val _sessionEndEvent = MutableLiveData<Unit>()
+    val sessionEndEvent: LiveData<Unit> get() = _sessionEndEvent
+
+    private val interactionRounds = mutableListOf<InteractionRound>()
+    private var acceptedRestaurant: AcceptedRestaurant? = null
+
+    private var selectedRestaurant: Restaurant? = null
+
+    fun setSelectedRestaurant(restaurant: Restaurant) {
+        selectedRestaurant = restaurant
+    }
+
     fun initialize(restaurants: List<Restaurant>) {
         fullRestaurantPool = restaurants
         _restaurants.value = restaurants.shuffled().take(6)
-        spinCount.value = 0
-        println("DEBUG: Initialized with ${restaurants.size} restaurants, showing 6.")
+        _spinCount.value = 0
+        interactionRounds.clear()
+        acceptedRestaurant = null
+        selectedRestaurant = null
     }
 
-    /**
-     * Loads a new batch of recommended restaurants based on user input.
-     * If no reason is provided, a random sample is used instead.
-     */
     fun loadRecommendedRestaurants(reason: String = "") {
         viewModelScope.launch {
-            println("DEBUG: loadRecommendedRestaurants invoked. Reason: \"$reason\"")
-
             val result = if (reason.isBlank()) {
-                val random = fullRestaurantPool.shuffled().take(6)
-                println("DEBUG: No reason provided. Using random sample of size ${random.size}")
-                random
+                fullRestaurantPool.shuffled().take(6)
             } else {
-                val parsed: ParsedUserInput = semanticEngine.parseInput(reason)
-                println("DEBUG: Parsed general tags: ${parsed.generalTags}")
-                println("DEBUG: Parsed specific tags: ${parsed.specificTags.map { "${it.tag}:${it.polarity}" }}")
-
-                val filtered = filterEngine.updateAndFilter(
+                val parsed = semanticEngine.parseInput(reason)
+                filterEngine.updateAndFilter(
                     userGeneralTags = parsed.generalTags,
                     userSpecificTags = parsed.specificTags,
                     allRestaurants = fullRestaurantPool
                 ).take(6)
-
-                println("DEBUG: Filtered result size = ${filtered.size}")
-                println("DEBUG: Filtered restaurant names: ${filtered.map { it.name }}")
-
-                filtered
             }
-
             _restaurants.value = result
         }
     }
 
-    /**
-     * Registers a rejection for a specific restaurant, refreshes full pool, then reloads new recommendations.
-     */
     fun rejectRestaurant(restaurant: Restaurant, reason: String) {
         viewModelScope.launch {
-            println("DEBUG: Rejected restaurant: ${restaurant.name} (ID=${restaurant.id})")
+            val parsed = semanticEngine.parseInput(reason)
+            val selectedId = restaurant.id
+
+            val feedback = UserFeedback(
+                accepted = false,
+                reasonInput = reason,
+                parsedGeneralTags = parsed.generalTags,
+                parsedSpecificTags = parsed.specificTags
+            )
+
+            val currentSpin = _spinCount.value ?: 0
+
+            recordRound(
+                roundIndex = currentSpin,
+                candidates = _restaurants.value ?: emptyList(),
+                selectedId = selectedId,
+                feedback = feedback
+            )
+
             filterEngine.reject(restaurant.id)
 
-            println("DEBUG: Fetching full restaurant pool from Firestore...")
-            fullRestaurantPool = FirestoreRestaurantRepository().getAllRestaurants()
-            println("DEBUG: New full pool size: ${fullRestaurantPool.size}")
-
-            loadRecommendedRestaurants(reason)
+            if (currentSpin >= 5) {
+                _spinCount.value = currentSpin + 1
+                commitSession()
+            } else {
+                _spinCount.value = currentSpin + 1
+                loadRecommendedRestaurants(reason)
+            }
         }
     }
 
-    /**
-     * Rejects the currently selected restaurant, assuming the first in the list.
-     */
     fun reject(reason: String) {
-        val current = restaurants.value?.getOrNull(0) ?: return
+        val current = selectedRestaurant ?: return
         rejectRestaurant(current, reason)
     }
 
-    /**
-     * Registers user acceptance of the current restaurant (extension point).
-     */
     fun acceptCurrent() {
-        // Optional: implement acceptance tracking if needed
+        val current = selectedRestaurant ?: return
+        val currentSpin = _spinCount.value ?: 0
+
+        acceptedRestaurant = AcceptedRestaurant(
+            id = current.id,
+            name = current.name,
+            generalTags = current.general_tags,
+            specificTags = current.specific_tags,
+            summary = current.summary,
+            location = LocationInfo(
+                lat = current.location.lat,
+                lng = current.location.lng,
+                address = current.location.address
+            ),
+            rating = current.rating
+        )
+
+        recordRound(
+            roundIndex = currentSpin,
+            candidates = _restaurants.value ?: emptyList(),
+            selectedId = current.id,
+            feedback = UserFeedback(
+                accepted = true,
+                reasonInput = null,
+                parsedGeneralTags = emptyList(),
+                parsedSpecificTags = emptyList()
+            )
+        )
+
+        _spinCount.value = currentSpin + 1
+        commitSession()
     }
 
-    /**
-     * Increments the internal spin counter (e.g., for animation or analytics).
-     */
-    fun incrementSpinCount() {
-        spinCount.value = (spinCount.value ?: 0) + 1
+    fun recordRound(
+        roundIndex: Int,
+        candidates: List<Restaurant>,
+        selectedId: String?,
+        feedback: UserFeedback? = null
+    ) {
+        val round = InteractionRound(
+            roundIndex = roundIndex,
+            selectedRestaurantId = selectedId,
+            userFeedback = feedback,
+            candidates = candidates.map {
+                RestaurantCandidate(
+                    id = it.id,
+                    name = it.name,
+                    tags = it.general_tags,
+                    summary = it.summary,
+                    rating = it.rating,
+                    isSelected = it.id == selectedId
+                )
+            }
+        )
+        interactionRounds.add(round)
+    }
+
+    fun commitSession() {
+        viewModelScope.launch {
+            val session = InteractionSession(
+                ownerUuid = currentUserUuid,
+                timestamp = System.currentTimeMillis(),
+                acceptedRestaurant = acceptedRestaurant,
+                rounds = interactionRounds.toList()
+            )
+            interactionSessionRepository.saveSession(currentUserUuid, session)
+            filterEngine.reset()
+            _sessionEndEvent.value = Unit
+        }
+        println("DEBUG: Writing session to Firestore for user $currentUserUuid")
+    }
+
+    fun getAcceptedRestaurant(): AcceptedRestaurant? {
+        return acceptedRestaurant
     }
 }

@@ -46,5 +46,8 @@
     <string name="profile_update_success">Profile updated successfully.</string>
     <string name="profile_update_failure">Failed to update profile.</string>
     <string name="logged_out">Logged out.</string>
-
+    <string name="session_message">Thank you for using GuluTurn!</string>
+    <string name="session_message_accept">You accepted <b>%1$s</b>!</string>
+    <string name="session_message_reject">You rejected all restaurants.</string>
+    <string name="play_again">Play Again</string>
 </resources>

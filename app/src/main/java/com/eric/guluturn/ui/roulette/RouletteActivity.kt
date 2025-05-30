@@ -12,7 +12,9 @@ import com.eric.guluturn.repository.impl.FirestoreRestaurantRepository
 import com.eric.guluturn.semantic.impl.OpenAiTagGenerator
 import com.eric.guluturn.semantic.models.OpenAiModels
 import com.eric.guluturn.common.storage.ApiKeyStorage
+import com.eric.guluturn.repository.impl.FirestoreInteractionSessionRepository
 import com.eric.guluturn.ui.profile.ProfileSelectorActivity
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 class RouletteActivity : ComponentActivity() {
@@ -44,28 +46,36 @@ class RouletteActivity : ComponentActivity() {
         binding.objectArea.layoutManager = GridLayoutManager(this, 2)
         binding.objectArea.adapter = adapter
 
-        dialogManager = RouletteDialogManager(
-            context = this,
-            parent = binding.root,
-            onRejectConfirmed = { reason ->
-                viewModel.reject(reason)
-            },
-            onAcceptConfirmed = {
-                viewModel.acceptCurrent()
-            }
-        )
-
         lifecycleScope.launch {
             val fullPool = FirestoreRestaurantRepository().getAllRestaurants()
             val filterEngine = StatefulFilterEngineImpl()
             val apiKey = ApiKeyStorage.getSavedApiKey(applicationContext)
                 ?: throw IllegalStateException("API key not found")
             val semanticEngine = OpenAiTagGenerator(OpenAiModels(apiKey))
+            val firestore = FirebaseFirestore.getInstance()
+            val interactionRepo = FirestoreInteractionSessionRepository(firestore)
 
             viewModel = ViewModelProvider(
                 this@RouletteActivity,
-                RouletteViewModelFactory(filterEngine, semanticEngine)
+                RouletteViewModelFactory(filterEngine, semanticEngine, interactionRepo, selectedProfileUuid)
             )[RouletteViewModel::class.java]
+
+            dialogManager = RouletteDialogManager(
+                context = this@RouletteActivity,
+                parent = binding.root,
+                onRejectConfirmed = { reason ->
+                    viewModel.reject(reason)
+                },
+                onAcceptConfirmed = {
+                    viewModel.acceptCurrent()
+                },
+                onPlayAgain = {
+                    lifecycleScope.launch {
+                        val refreshedPool = FirestoreRestaurantRepository().getAllRestaurants()
+                        viewModel.initialize(refreshedPool)
+                    }
+                }
+            )
 
             viewModel.initialize(fullPool)
 
@@ -79,13 +89,18 @@ class RouletteActivity : ComponentActivity() {
                 binding.decisionSectionView.updateSpinCount(count)
             }
 
+            viewModel.sessionEndEvent.observe(this@RouletteActivity) {
+                val accepted = viewModel.getAcceptedRestaurant()
+                dialogManager.showSessionEndDialog(accepted)
+            }
+
             binding.spinButton.setOnClickListener {
                 binding.spinWheelView.spin()
             }
 
             binding.spinWheelView.onSpinEnd = { selectedRestaurant ->
+                viewModel.setSelectedRestaurant(selectedRestaurant)
                 dialogManager.showResultDialog(selectedRestaurant)
-                viewModel.incrementSpinCount()
             }
         }
     }

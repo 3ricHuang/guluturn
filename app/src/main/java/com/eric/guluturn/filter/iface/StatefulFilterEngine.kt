@@ -64,4 +64,9 @@ class StatefulFilterEngine {
      * Returns the current filter state.
      */
     fun getState(): FilterState = state
+
+    fun reset() {
+        state = FilterState()
+    }
+
 }
