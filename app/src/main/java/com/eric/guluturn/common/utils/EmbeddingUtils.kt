@@ -1,43 +1,45 @@
-package com.eric.guluturn.common.utils
+package com.eric.guluturn.utils
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import kotlin.math.sqrt
 
 object EmbeddingUtils {
 
-    private const val EPSILON = 1e-6f
+    private val client = OkHttpClient()
+    private val JSON   = "application/json".toMediaType()
+    private const val URL = "https://api.openai.com/v1/embeddings"
 
-    /**
-     * Calculate the cosine similarity between two embedding vectors.
-     *
-     * @param vec1 The first embedding vector.
-     * @param vec2 The second embedding vector.
-     * @return The cosine similarity as a Float value between -1.0 and 1.0.
-     */
-    fun cosineSimilarity(vec1: List<Float>, vec2: List<Float>): Float {
-        // 計算內積
-        val dotProduct = vec1.zip(vec2).sumOf { (a, b) -> (a * b).toDouble() }.toFloat()
+    /** One-shot call to text-embedding-3-small */
+    suspend fun embed(apiKey: String, text: String): List<Double> = withContext(Dispatchers.IO) {
+        val body = """{"model":"text-embedding-3-small","input":${JSONObject.quote(text)}}"""
+            .toRequestBody(JSON)
 
-        // 計算向量長度
-        val magnitude1 = sqrt(vec1.map { it * it }.sum())
-        val magnitude2 = sqrt(vec2.map { it * it }.sum())
+        val req = Request.Builder()
+            .url(URL)
+            .addHeader("Authorization", "Bearer $apiKey")
+            .post(body)
+            .build()
 
-        // 檢查向量長度是否接近零，避免除以零
-        if (magnitude1 < EPSILON || magnitude2 < EPSILON) {
-            return 0.0f
+        client.newCall(req).execute().use { resp ->
+            val json = JSONObject(resp.body!!.string())
+            val arr  = json.getJSONArray("data")
+                .getJSONObject(0)
+                .getJSONArray("embedding")
+            return@withContext List(arr.length()) { i -> arr.getDouble(i) }
         }
-
-        return dotProduct / (magnitude1 * magnitude2)
     }
 
-    /**
-     * Normalize an embedding vector to unit length.
-     *
-     * @param vec The input embedding vector.
-     * @return The normalized vector.
-     */
-    fun normalizeVector(vec: List<Float>): List<Float> {
-        val magnitude = sqrt(vec.map { it * it }.sum())
-        if (magnitude < EPSILON) return vec
-        return vec.map { it / magnitude }
+    /** Cosine similarity for equal-length vectors */
+    fun cosine(a: List<Double>, b: List<Double>): Double {
+        val dot = a.indices.sumOf { a[it] * b[it] }
+        val na  = sqrt(a.sumOf { it*it })
+        val nb  = sqrt(b.sumOf { it*it })
+        return if (na == 0.0 || nb == 0.0) 0.0 else dot / (na * nb)
     }
 }

@@ -46,7 +46,7 @@ class StatefulFilterEngine {
             candidates = HardFilter.apply(state.accumulatedGeneralTags, remaining)
         )
 
-        return AdvancementSelector.select(scored)
+        return scored.sortedByDescending { it.score }
     }
 
     /**

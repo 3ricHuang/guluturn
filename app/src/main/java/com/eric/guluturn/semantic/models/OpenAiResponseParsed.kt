@@ -13,5 +13,8 @@ data class OpenAiResponseParsed(
     val generalTags: List<String>,
 
     @SerialName("specific_tags")
-    val specificTags: List<SpecificTag>
+    val specificTags: List<SpecificTag>,
+
+    @SerialName("preferred_restaurants")
+    val preferredRestaurants: List<String> = emptyList()
 )

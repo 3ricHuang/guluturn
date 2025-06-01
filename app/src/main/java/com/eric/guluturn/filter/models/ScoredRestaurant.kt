@@ -1,5 +1,7 @@
 package com.eric.guluturn.filter.models
 
+import com.eric.guluturn.common.models.Restaurant
+
 /**
  * Represents a restaurant with an associated matching score.
  *
@@ -7,6 +9,6 @@ package com.eric.guluturn.filter.models
  * @property score Computed score indicating how well the restaurant matches user preferences.
  */
 data class ScoredRestaurant(
-    val id: String,
+    val restaurant: Restaurant,
     val score: Int
 )

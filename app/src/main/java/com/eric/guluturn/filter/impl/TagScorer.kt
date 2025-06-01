@@ -6,83 +6,66 @@ import com.eric.guluturn.filter.models.ScoredRestaurant
 import com.eric.guluturn.filter.registry.TagRegistry
 
 /**
- * TagScorer assigns scores to candidate restaurants based on the user's
- * general and specific tags. The score reflects semantic alignment and
- * will be used for downstream filtering and selection.
+ * TagScorer (2025/06) – only evaluates **general tags**.
  *
- * Current implementation uses exact tag matching only.
+ *  Scoring rule recap
+ *  ─────────────────────────────────────────────
+ *   • skip "system"  &  strength = hard
+ *   • preference  vs  same-named preference   : +3 / –3
+ *   • preference  vs  quality (opposites)     : +1 (align) / –2 (conflict)
+ *   • all other combinations                  :  0
+ *  ─────────────────────────────────────────────
  */
 object TagScorer {
 
+    /* tunable weights */
+    private const val SAME_PREF_POS  =  3
+    private const val SAME_PREF_NEG  = -3
+    private const val CROSS_ALIGN    =  1
+    private const val CROSS_CONFLICT = -2
+
     /**
-     * Scores each restaurant using user-provided tags.
-     *
-     * @param userGeneralTags List of standardized general tags from user input.
-     * @param userSpecificTags List of user-generated free-text tags with polarity.
-     * @param candidates List of restaurants to be scored.
-     * @return List of scored restaurants (id + score), sorted by descending score.
+     * @return a DESC-sorted list of [ScoredRestaurant] with full Restaurant payload.
      */
     fun score(
-        userGeneralTags: List<String>,
-        userSpecificTags: List<SpecificTag>,
-        candidates: List<Restaurant>
+        userGeneralTags : List<String>,
+        userSpecificTags: List<SpecificTag>,   // kept for API compatibility
+        candidates      : List<Restaurant>
     ): List<ScoredRestaurant> {
-        return candidates.mapIndexed { idx, restaurant ->
-            val generalScore = scoreGeneral(userGeneralTags, restaurant.general_tags)
-            val specificScore = scoreSpecific(userSpecificTags, restaurant.specific_tags)
-            ScoredRestaurant(
-                id = restaurant.id,
-                score = generalScore + specificScore
-            )
+
+        return candidates.map { shop ->
+            val gScore = scoreGeneral(userGeneralTags, shop.general_tags)
+            /* >>>>>>>>>>> 這一行改為注入 Restaurant 本體  <<<<<<<<<<< */
+            ScoredRestaurant(restaurant = shop, score = gScore)
         }.sortedByDescending { it.score }
     }
 
-    /**
-     * Exact match scoring for general tags based on polarity and strength.
-     * Matching tags receive +2, opposite tags receive -2.
-     * Hard tags are ignored (they are handled by HardFilter).
-     */
+    /* ---------------- internal ---------------- */
     private fun scoreGeneral(
-        userTags: List<String>,
-        restaurantTags: List<String>
+        userTags : List<String>,
+        shopTags : List<String>
     ): Int {
         var score = 0
-        for (tag in userTags) {
-            val meta = TagRegistry.get(tag) ?: continue
-            if (meta.strength == "hard") continue
 
-            val opp = TagRegistry.conflictMap[tag]
-            when (meta.polarity) {
-                "positive" -> {
-                    if (tag in restaurantTags) score += 2
-                    if (opp != null && opp in restaurantTags) score -= 2
-                }
-                "negative" -> {
-                    if (tag in restaurantTags) score -= 2
-                    if (opp != null && opp in restaurantTags) score -= 2
-                }
+        userTags.forEach { uTag ->
+            val uMeta = TagRegistry.get(uTag) ?: return@forEach
+            if (uMeta.tagType == "system" || uMeta.strength == "hard") return@forEach
+
+            /* ① same-name preference */
+            if (uMeta.tagType == "preference" && uTag in shopTags) {
+                score += if (uMeta.polarity == "positive") SAME_PREF_POS else SAME_PREF_NEG
             }
-        }
-        return score
-    }
 
-    /**
-     * Exact match scoring for specific tags.
-     * If a tag with the same polarity is found → +3
-     * If a tag with the opposite polarity is found → -3
-     * Otherwise → 0
-     */
-    private fun scoreSpecific(
-        userTags: List<SpecificTag>,
-        restaurantTags: List<SpecificTag>
-    ): Int {
-        var score = 0
-        for (userTag in userTags) {
-            for (shopTag in restaurantTags) {
-                if (userTag.tag == shopTag.tag) {
-                    val userPol = userTag.polarity.lowercase()
-                    val shopPol = shopTag.polarity.lowercase()
-                    score += if (userPol == shopPol) 3 else -3
+            /* ② preference ↔ quality opposite mapping */
+            if (uMeta.tagType == "preference") {
+                shopTags.forEach { sTag ->
+                    val sMeta = TagRegistry.get(sTag) ?: return@forEach
+                    if (sMeta.tagType != "quality") return@forEach
+
+                    when {
+                        sTag in uMeta.opposite -> score += CROSS_CONFLICT
+                        uTag in sMeta.opposite -> score += CROSS_ALIGN
+                    }
                 }
             }
         }

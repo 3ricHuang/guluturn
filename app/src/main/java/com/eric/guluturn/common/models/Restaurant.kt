@@ -12,13 +12,15 @@ data class Restaurant(
     val price_range: String? = null,
     val rating: Double? = null,
     val review_count: Int = 0,
-    val business_hours: Map<String, BusinessHour> = emptyMap()
+    val business_hours: Map<String, BusinessHour> = emptyMap(),
+    val name_embedding: List<Double> = emptyList()
 )
 
 @Serializable
 data class SpecificTag(
     val tag: String = "",
-    val polarity: String = ""  // "positive" or "negative"
+    val polarity: String = "",  // "positive" or "negative"
+    val embedding: List<Double> = emptyList()
 )
 
 @Serializable

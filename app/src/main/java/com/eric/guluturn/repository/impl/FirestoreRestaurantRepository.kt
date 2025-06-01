@@ -1,7 +1,8 @@
 package com.eric.guluturn.repository.impl
 
-import com.eric.guluturn.common.models.Restaurant
+import com.eric.guluturn.common.models.*
 import com.eric.guluturn.repository.iface.IRestaurantRepository
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -24,9 +25,7 @@ class FirestoreRestaurantRepository : IRestaurantRepository {
             db.collection("restaurants")
                 .get()
                 .await()
-                .mapNotNull { doc ->
-                    doc.toObject(Restaurant::class.java)?.copy(id = doc.id)
-                }
+                .mapNotNull { parseRestaurant(it) }
         } catch (e: Exception) {
             emptyList()
         }
@@ -44,9 +43,7 @@ class FirestoreRestaurantRepository : IRestaurantRepository {
                 .whereArrayContains("general_tags", tag)
                 .get()
                 .await()
-                .mapNotNull { doc ->
-                    doc.toObject(Restaurant::class.java)?.copy(id = doc.id)
-                }
+                .mapNotNull { parseRestaurant(it) }
         } catch (e: Exception) {
             emptyList()
         }
@@ -64,10 +61,7 @@ class FirestoreRestaurantRepository : IRestaurantRepository {
                 .document(id)
                 .get()
                 .await()
-
-            if (doc.exists()) {
-                doc.toObject(Restaurant::class.java)?.copy(id = doc.id)
-            } else null
+            if (doc.exists()) parseRestaurant(doc) else null
         } catch (e: Exception) {
             null
         }
@@ -84,13 +78,85 @@ class FirestoreRestaurantRepository : IRestaurantRepository {
             db.collection("restaurants")
                 .get()
                 .await()
-                .shuffled()  // Randomize order
+                .shuffled()
                 .take(limit)
-                .mapNotNull { doc ->
-                    doc.toObject(Restaurant::class.java)?.copy(id = doc.id)
-                }
+                .mapNotNull { parseRestaurant(it) }
         } catch (e: Exception) {
             emptyList()
+        }
+    }
+
+    /**
+     * Parses a Firestore document into a Restaurant object, with fallbacks for:
+     * - name_embedding: ensures List<Double> even if raw Firestore stores List<Long> or empty
+     * - specific_tags: parses from nested map objects (tag + polarity)
+     * - location: gracefully handles missing fields or null values
+     * - business_hours: supports Map<String, Map<String, String>> structure
+     */
+    private fun parseRestaurant(doc: DocumentSnapshot): Restaurant? {
+        return try {
+            val nameEmbedding = (doc.get("name_embedding") as? List<*>)?.mapNotNull {
+                when (it) {
+                    is Number -> it.toDouble()
+                    is String -> it.toDoubleOrNull()
+                    else -> null
+                }
+            } ?: emptyList()
+            if (nameEmbedding.isEmpty()) {
+                println("Empty name_embedding for restaurant ${doc.id} - name = ${doc.getString("name")}")
+            }
+
+            val specificTagRaw = doc.get("specific_tags") as? List<*>
+            val specificTags = specificTagRaw?.mapNotNull { item ->
+                if (item is Map<*, *>) {
+                    val tag = item["tag"] as? String
+                    val polarity = item["polarity"] as? String
+                    val embedding = (item["embedding"] as? List<*>)?.mapNotNull {
+                        when (it) {
+                            is Number -> it.toDouble()
+                            is String -> it.toDoubleOrNull()
+                            else -> null
+                        }
+                    } ?: emptyList()
+
+                    if (tag != null && polarity != null)
+                        SpecificTag(tag, polarity, embedding)
+                    else null
+                } else null
+            } ?: emptyList()
+
+            val locationMap = doc.get("location") as? Map<*, *>
+            val location = Location(
+                lat = (locationMap?.get("lat") as? Number)?.toDouble() ?: 0.0,
+                lng = (locationMap?.get("lng") as? Number)?.toDouble() ?: 0.0,
+                address = locationMap?.get("address") as? String ?: ""
+            )
+
+            val businessHoursMap = doc.get("business_hours") as? Map<*, *>
+            val businessHours = businessHoursMap?.mapNotNull { (weekday, timeMap) ->
+                if (weekday is String && timeMap is Map<*, *>) {
+                    val open = timeMap["open"] as? String
+                    val close = timeMap["close"] as? String
+                    weekday to BusinessHour(open, close)
+                } else null
+            }?.toMap() ?: emptyMap()
+
+            Restaurant(
+                id = doc.id,
+                name = doc.getString("name") ?: "",
+                summary = doc.getString("summary") ?: "",
+                general_tags = doc.get("general_tags") as? List<String> ?: emptyList(),
+                specific_tags = specificTags,
+                location = location,
+                price_range = doc.getString("price_range"),
+                rating = doc.getDouble("rating"),
+                review_count = doc.getLong("review_count")?.toInt() ?: 0,
+                business_hours = businessHours,
+                name_embedding = nameEmbedding
+            )
+        } catch (e: Exception) {
+            println("Error parsing restaurant document ${doc.id}: ${e.message}")
+            null
         }
     }
 }

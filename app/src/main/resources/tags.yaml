@@ -1,156 +1,775 @@
-# ------------------------------------------------------------
-# Hierarchical Standard Tags for GuluTurn
-# ------------------------------------------------------------
-# - category   : top-level grouping (taste / ingredient / dietary / context / quality)
-# - tag        : unique machine-readable name (snake_case)
-# - polarity   : positive | negative
-# - strength   : hard | soft   # hard → must block, soft → affects ranking only
-# - description: concise English description for GPT and developers
-# ------------------------------------------------------------
+# ==========================
+# tags.yaml
+# ==========================
+
+protein:
+  meat:
+    - tag: prefer_meat
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_meat]
+      description: The user prefers dishes containing meat.
+    - tag: avoid_meat
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_meat]
+      description: The user wants to avoid all meat.
+
+  beef:
+    - tag: prefer_beef
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_beef]
+      description: The user wants beef dishes.
+    - tag: avoid_beef
+      tag_type: preference
+      polarity: negative
+      strength: hard
+      opposite_tags: [prefer_beef]
+      description: The user does not eat beef.
+
+  pork:
+    - tag: prefer_pork
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_pork]
+      description: The user wants pork dishes.
+    - tag: avoid_pork
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_pork]
+      description: The user does not eat pork.
+
+  mutton:
+    - tag: prefer_mutton
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_mutton]
+      description: The user wants mutton dishes.
+    - tag: avoid_mutton
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_mutton]
+      description: The user does not eat mutton.
+
+  chicken:
+    - tag: prefer_chicken
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_chicken]
+      description: The user wants chicken dishes.
+    - tag: avoid_chicken
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_chicken]
+      description: The user avoids chicken.
+
+  duck:
+    - tag: prefer_duck
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_duck]
+      description: The user likes duck dishes.
+    - tag: avoid_duck
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_duck]
+      description: The user avoids duck.
+
+  goose:
+    - tag: prefer_goose
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_goose]
+      description: The user prefers goose dishes.
+    - tag: avoid_goose
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_goose]
+      description: The user avoids goose.
+
+  seafood:
+    - tag: prefer_seafood
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_seafood]
+      description: The user wants seafood.
+    - tag: avoid_seafood
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_seafood]
+      description: The user does not eat seafood.
+
+dish_type:
+  bento:
+    - tag: prefer_bento_meals
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_bento_meals]
+      description: The user prefers boxed meals such as bento.
+    - tag: avoid_bento_meals
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_bento_meals]
+      description: The user avoids boxed meals.
+
+  fried:
+    - tag: prefer_fried_dishes
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_fried_dishes]
+      description: The user likes deep-fried dishes such as fried chicken or tempura.
+    - tag: avoid_fried_dishes
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_fried_dishes]
+      description: The user avoids deep-fried food.
+
+  soup:
+    - tag: prefer_soup_dishes
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_soup_dishes]
+      description: The user likes soup-based or broth-based dishes.
+    - tag: avoid_soup_dishes
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_soup_dishes]
+      description: The user avoids soup-based food.
+
+  snack:
+    - tag: prefer_snack_items
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_snack_items]
+      description: The user wants small-portioned or street-style snack food.
+    - tag: avoid_snack_items
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_snack_items]
+      description: The user avoids snacks or small dishes.
+
+  lu_wei:
+    - tag: prefer_lu_wei
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_lu_wei]
+      description: The user likes Taiwanese braised dishes (lu wei).
+    - tag: avoid_lu_wei
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_lu_wei]
+      description: The user avoids braised dish styles.
+
+  dumplings:
+    - tag: prefer_dumplings
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_dumplings]
+      description: The user likes dumplings, including steamed or pan-fried.
+    - tag: avoid_dumplings
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_dumplings]
+      description: The user avoids dumplings or similar items.
+
+  barbecue:
+    - tag: prefer_barbecue
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_barbecue]
+      description: The user wants grilled or barbecued food.
+    - tag: avoid_barbecue
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_barbecue]
+      description: The user avoids grilled or barbecued items.
+
+  burger:
+    - tag: prefer_burgers
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_burgers]
+      description: The user prefers burgers.
+    - tag: avoid_burgers
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_burgers]
+      description: The user avoids burgers.
+
+  hotpot:
+    - tag: prefer_hotpot
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_hotpot]
+      description: The user wants hot pot dishes.
+    - tag: avoid_hotpot
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_hotpot]
+      description: The user avoids hot pot.
+
+cuisine:
+  chinese:
+    - tag: prefer_chinese_cuisine
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_chinese_cuisine]
+      description: The user prefers Chinese food.
+    - tag: avoid_chinese_cuisine
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_chinese_cuisine]
+      description: The user avoids Chinese food.
+
+  taiwanese:
+    - tag: prefer_taiwanese_cuisine
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_taiwanese_cuisine]
+      description: The user prefers Taiwanese-style food.
+    - tag: avoid_taiwanese_cuisine
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_taiwanese_cuisine]
+      description: The user avoids Taiwanese food.
+
+  japanese:
+    - tag: prefer_japanese_cuisine
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_japanese_cuisine]
+      description: The user prefers Japanese food.
+    - tag: avoid_japanese_cuisine
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_japanese_cuisine]
+      description: The user avoids Japanese food.
+
+  korean:
+    - tag: prefer_korean_cuisine
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_korean_cuisine]
+      description: The user likes Korean food.
+    - tag: avoid_korean_cuisine
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_korean_cuisine]
+      description: The user avoids Korean food.
+
+  southeast_asian:
+    - tag: prefer_southeast_asian_cuisine
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_southeast_asian_cuisine]
+      description: The user prefers Southeast Asian food.
+    - tag: avoid_southeast_asian_cuisine
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_southeast_asian_cuisine]
+      description: The user avoids Southeast Asian food.
+
+  western:
+    - tag: prefer_western_cuisine
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_western_cuisine]
+      description: The user wants Western food.
+    - tag: avoid_western_cuisine
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_western_cuisine]
+      description: The user avoids Western-style meals.
+
+meal_time:
+  breakfast:
+    - tag: prefer_breakfast_items
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_breakfast_items]
+      description: The user wants breakfast-style food.
+    - tag: avoid_breakfast_items
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_breakfast_items]
+      description: The user avoids breakfast-style dishes.
+
+  lunch:
+    - tag: prefer_lunch_items
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_lunch_items]
+      description: The user wants lunch-appropriate food.
+    - tag: avoid_lunch_items
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_lunch_items]
+      description: The user avoids lunch-type dishes.
+
+  dinner:
+    - tag: prefer_dinner_items
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_dinner_items]
+      description: The user is looking for dinner-type food.
+    - tag: avoid_dinner_items
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_dinner_items]
+      description: The user avoids dinner-style meals.
+
+  late_night:
+    - tag: prefer_late_night_items
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_late_night_items]
+      description: The user wants food suitable for late-night snacks.
+    - tag: avoid_late_night_items
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_late_night_items]
+      description: The user avoids eating late at night.
+
+serving_type:
+  takeout:
+    - tag: prefer_takeout
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_takeout]
+      description: The user prefers food that can be taken out.
+    - tag: avoid_takeout
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_takeout]
+      description: The user avoids takeout.
+
+  dine_in:
+    - tag: prefer_dine_in
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_dine_in]
+      description: The user prefers dining in.
+    - tag: avoid_dine_in
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_dine_in]
+      description: The user avoids dining in.
+
+  lineup:
+    - tag: prefer_short_wait_time
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_long_wait_time, quality_long_wait_time]
+      description: The user prefers not having to wait in line.
+    - tag: avoid_long_wait_time
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_short_wait_time, quality_short_wait_time]
+      description: The user wants to avoid long queues or wait times.
+
+staple:
+  noodles:
+    - tag: prefer_noodles
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_noodles]
+      description: The user wants noodle-based dishes.
+    - tag: avoid_noodles
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_noodles]
+      description: The user wants to avoid noodles.
+
+  rice:
+    - tag: prefer_rice
+      tag_type: preference
+      polarity: positive
+      strength: soft
+      opposite_tags: [avoid_rice]
+      description: The user wants rice-based dishes.
+    - tag: avoid_rice
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [prefer_rice]
+      description: The user wants to avoid rice.
+
+dietary:
+  vegetarian:
+    - tag: need_vegetarian_options
+      tag_type: preference
+      polarity: positive
+      strength: hard
+      opposite_tags: [no_vegetarian_options]
+      description: The user requires vegetarian options.
+    - tag: no_vegetarian_options
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [need_vegetarian_options]
+      description: The restaurant offers no vegetarian dishes.
+
+  halal:
+    - tag: need_halal_options
+      tag_type: preference
+      polarity: positive
+      strength: hard
+      opposite_tags: [no_halal_options]
+      description: The user requires Halal options.
+    - tag: no_halal_options
+      tag_type: preference
+      polarity: negative
+      strength: soft
+      opposite_tags: [need_halal_options]
+      description: The restaurant offers no Halal food.
+
+context:
+  price:
+    - tag: too_expensive
+      tag_type: quality
+      polarity: negative
+      strength: soft
+      opposite_tags: [reasonably_priced]
+      description: The restaurant is perceived as too expensive.
+    - tag: reasonably_priced
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [too_expensive]
+      description: The restaurant is considered reasonably priced.
+
+  portion:
+    - tag: portion_too_small
+      tag_type: quality
+      polarity: negative
+      strength: soft
+      opposite_tags: [portion_satisfying]
+      description: The portion size is too small.
+    - tag: portion_too_large
+      tag_type: quality
+      polarity: negative
+      strength: soft
+      opposite_tags: [portion_satisfying]
+      description: The portion size is too large.
+    - tag: portion_satisfying
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [portion_too_small, portion_too_large]
+      description: The portion size is appropriate.
+
+  environment:
+    - tag: dirty_environment
+      tag_type: quality
+      polarity: negative
+      strength: soft
+      opposite_tags: [clean_environment]
+      description: The restaurant looks unclean.
+    - tag: clean_environment
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [dirty_environment]
+      description: The restaurant is clean.
+    - tag: poor_service
+      tag_type: quality
+      polarity: negative
+      strength: soft
+      opposite_tags: [good_service]
+      description: Service is slow or rude.
+    - tag: good_service
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [poor_service]
+      description: Service is fast and polite.
+    - tag: too_crowded
+      tag_type: quality
+      polarity: negative
+      strength: soft
+      opposite_tags: [not_crowded]
+      description: The venue is overly crowded.
+    - tag: not_crowded
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [too_crowded]
+      description: The venue is comfortably spaced.
+    - tag: quality_long_wait_time
+      tag_type: quality
+      polarity: negative
+      strength: soft
+      opposite_tags: [quality_short_wait_time, prefer_short_wait_time]
+      description: Long wait times are expected.
+    - tag: quality_short_wait_time
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [quality_long_wait_time, avoid_long_wait_time]
+      description: Food is served quickly.
+    - tag: hard_to_find_parking
+      tag_type: quality
+      polarity: negative
+      strength: soft
+      opposite_tags: [easy_parking]
+      description: Parking is difficult to find.
+    - tag: easy_parking
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [hard_to_find_parking]
+      description: Parking is convenient.
 
 taste:
   sweet:
     - tag: prefer_sweet_dishes
+      tag_type: preference
       polarity: positive
       strength: soft
+      opposite_tags: [avoid_sweet_dishes, quality_too_sweet]
       description: The user prefers sweet food or desserts.
     - tag: avoid_sweet_dishes
+      tag_type: preference
       polarity: negative
       strength: soft
+      opposite_tags: [prefer_sweet_dishes]
       description: The user wants to avoid sweet food.
     - tag: avoid_too_sweet
+      tag_type: preference
       polarity: negative
       strength: soft
-      description: The user wants to avoid dishes that are overly sweet.
+      opposite_tags: [prefer_sweet_dishes, quality_too_sweet]
+      description: The user wants to avoid overly sweet dishes.
     - tag: quality_too_sweet
+      tag_type: quality
       polarity: negative
       strength: soft
-      description: The food is considered overly sweet.
+      opposite_tags: [quality_ok_sweetness]
+      description: The dish is excessively sweet.
+    - tag: quality_ok_sweetness
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [quality_too_sweet]
+      description: The dish has an acceptable sweetness level.
 
   salty:
     - tag: prefer_salty_dishes
+      tag_type: preference
       polarity: positive
       strength: soft
-      description: The user prefers salty or umami-rich dishes.
+      opposite_tags: [avoid_salty_dishes, quality_too_salty]
+      description: The user prefers salty dishes.
     - tag: avoid_salty_dishes
+      tag_type: preference
       polarity: negative
       strength: soft
+      opposite_tags: [prefer_salty_dishes]
       description: The user wants to avoid salty dishes.
     - tag: quality_too_salty
+      tag_type: quality
       polarity: negative
       strength: soft
-      description: The food is considered overly salty.
+      opposite_tags: [quality_ok_saltiness]
+      description: The food is overly salty.
+    - tag: quality_ok_saltiness
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [quality_too_salty]
+      description: The saltiness level is acceptable.
 
   spicy:
     - tag: prefer_spicy_dishes
+      tag_type: preference
       polarity: positive
       strength: soft
+      opposite_tags: [avoid_spicy_dishes, quality_too_spicy]
       description: The user prefers spicy dishes.
     - tag: avoid_spicy_dishes
+      tag_type: preference
       polarity: negative
       strength: soft
+      opposite_tags: [prefer_spicy_dishes]
       description: The user wants to avoid spicy dishes.
     - tag: quality_too_spicy
+      tag_type: quality
       polarity: negative
       strength: soft
-      description: The food is considered too spicy.
+      opposite_tags: [quality_ok_spiciness]
+      description: The dish is too spicy.
+    - tag: quality_ok_spiciness
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [quality_too_spicy]
+      description: The spiciness level is acceptable.
 
   greasy:
     - tag: prefer_greasy_dishes
+      tag_type: preference
       polarity: positive
       strength: soft
-      description: The user enjoys oily or rich dishes.
+      opposite_tags: [avoid_greasy_dishes, quality_too_greasy]
+      description: The user enjoys oily dishes.
     - tag: avoid_greasy_dishes
+      tag_type: preference
       polarity: negative
       strength: soft
+      opposite_tags: [prefer_greasy_dishes]
       description: The user wants to avoid greasy dishes.
     - tag: quality_too_greasy
+      tag_type: quality
       polarity: negative
       strength: soft
-      description: The food is considered too greasy.
+      opposite_tags: [quality_ok_greasiness]
+      description: The food is excessively greasy.
+    - tag: quality_ok_greasiness
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [quality_too_greasy]
+      description: The greasiness level is acceptable.
 
   fresh:
     - tag: prefer_fresh_dishes
+      tag_type: preference
       polarity: positive
       strength: soft
-      description: The user prefers fresh, light, or clean-tasting dishes.
+      opposite_tags: [avoid_fresh_dishes]
+      description: The user prefers fresh, light dishes.
     - tag: avoid_fresh_dishes
+      tag_type: preference
       polarity: negative
       strength: soft
-      description: The user wants to avoid light or fresh-tasting dishes.
+      opposite_tags: [prefer_fresh_dishes]
+      description: The user wants to avoid light dishes.
 
   temperature:
     - tag: prefer_cold_items
+      tag_type: preference
       polarity: positive
       strength: soft
-      description: The user prefers cold dishes or drinks.
+      opposite_tags: [avoid_cold_items, quality_too_hot]
+      description: The user prefers cold items.
     - tag: avoid_cold_items
+      tag_type: preference
       polarity: negative
       strength: soft
-      description: The user wants to avoid cold dishes or drinks.
+      opposite_tags: [prefer_cold_items]
+      description: The user wants to avoid cold items.
     - tag: prefer_hot_items
+      tag_type: preference
       polarity: positive
       strength: soft
-      description: The user prefers hot dishes or drinks.
+      opposite_tags: [avoid_hot_items, quality_too_cold]
+      description: The user prefers hot items.
     - tag: avoid_hot_items
+      tag_type: preference
       polarity: negative
       strength: soft
-      description: The user wants to avoid hot dishes or drinks.
+      opposite_tags: [prefer_hot_items]
+      description: The user wants to avoid hot items.
     - tag: quality_too_cold
+      tag_type: quality
       polarity: negative
       strength: soft
-      description: The item is too cold (below expected temperature).
+      opposite_tags: [quality_ok_temperature]
+      description: The item is too cold.
     - tag: quality_lukewarm
+      tag_type: quality
       polarity: negative
       strength: soft
-      description: The item is lukewarm (should be hotter).
+      opposite_tags: [quality_ok_temperature]
+      description: The item is lukewarm.
     - tag: quality_too_hot
+      tag_type: quality
       polarity: negative
       strength: soft
-      description: The item is excessively hot and hard to consume.
+      opposite_tags: [quality_ok_temperature]
+      description: The item is excessively hot.
+    - tag: quality_ok_temperature
+      tag_type: quality
+      polarity: positive
+      strength: soft
+      opposite_tags: [quality_too_cold, quality_lukewarm, quality_too_hot]
+      description: The temperature is appropriate.
 
-ingredient:
-  staple:
-    - {tag: prefer_noodles , polarity: positive, strength: soft, description: The user wants noodle-based dishes.}
-    - {tag: avoid_noodles  , polarity: negative, strength: soft, description: The user wants to avoid noodles.}
-    - {tag: prefer_rice    , polarity: positive, strength: soft, description: The user wants rice-based dishes.}
-    - {tag: avoid_rice     , polarity: negative, strength: soft, description: The user wants to avoid rice.}
-
-  protein:
-    - {tag: prefer_meat   , polarity: positive, strength: soft, description: The user prefers dishes containing meat.}
-    - {tag: avoid_meat    , polarity: negative, strength: soft, description: The user wants to avoid all meat.}
-    - {tag: prefer_beef   , polarity: positive, strength: soft, description: The user wants beef dishes.}
-    - {tag: avoid_beef    , polarity: negative, strength: soft, description: The user does not eat beef.}
-    - {tag: prefer_pork   , polarity: positive, strength: soft, description: The user wants pork dishes.}
-    - {tag: avoid_pork    , polarity: negative, strength: soft, description: The user does not eat pork.}
-    - {tag: prefer_seafood, polarity: positive, strength: soft, description: The user wants seafood.}
-    - {tag: avoid_seafood , polarity: negative, strength: soft, description: The user does not eat seafood.}
-
-dietary:
-  - {tag: need_vegetarian_options, polarity: positive, strength: hard, description: The user requires vegetarian options.}
-  - {tag: no_vegetarian_options , polarity: negative, strength: hard, description: The restaurant offers no vegetarian dishes.}
-  - {tag: need_halal_options    , polarity: positive, strength: hard, description: The user requires Halal options.}
-  - {tag: no_halal_options      , polarity: negative, strength: hard, description: The restaurant offers no Halal food.}
-  - {tag: allergy_concern       , polarity: negative, strength: hard, description: Potential allergens are a concern.}
-
-context:
-  price:
-    - {tag: too_expensive , polarity: negative, strength: soft, description: The restaurant is perceived as too expensive.}
-  portion:
-    - {tag: portion_too_small , polarity: negative, strength: soft, description: The portion size is too small.}
-    - {tag: portion_too_large , polarity: negative, strength: soft, description: The portion size is too large.}
-  environment:
-    - {tag: dirty_environment    , polarity: negative, strength: soft, description: The restaurant looks unclean.}
-    - {tag: poor_service         , polarity: negative, strength: soft, description: Service is slow or rude.}
-    - {tag: too_crowded          , polarity: negative, strength: soft, description: The venue is overly crowded.}
-    - {tag: long_wait_time       , polarity: negative, strength: soft, description: Long wait times are expected.}
-    - {tag: hard_to_find_parking , polarity: negative, strength: soft, description: Parking is difficult to find.}
+system_feedback:
   availability:
-    - {tag: closed_today , polarity: negative, strength: hard, description: The restaurant is closed today.}
-  mood:
-    - {tag: not_in_the_mood, polarity: negative, strength: soft, description: The user is not in the mood for this cuisine.}
-  time:
-    - {tag: prefer_quick_meal, polarity: positive, strength: soft, description: The user prefers meals that can be eaten quickly or are fast to prepare.}
+    - tag: user_report_closed
+      tag_type: system
+      polarity: neutral
+      strength: soft
+      opposite_tags: []
+      description: The user indicates the restaurant is closed.
 
-quality:
-  - {tag: unhealthy, polarity: negative, strength: soft, description: The food is perceived as unhealthy or overly processed.}
+  fallback:
+    - tag: user_input_gibberish
+      tag_type: system
+      polarity: neutral
+      strength: soft
+      opposite_tags: []
+      description: The user input cannot be parsed into meaningful tags.

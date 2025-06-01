@@ -6,13 +6,14 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.eric.guluturn.common.models.Restaurant
 import com.eric.guluturn.databinding.ActivityRouletteBinding
+import com.eric.guluturn.common.storage.ApiKeyStorage
 import com.eric.guluturn.filter.impl.StatefulFilterEngineImpl
+import com.eric.guluturn.repository.impl.FirestoreInteractionSessionRepository
 import com.eric.guluturn.repository.impl.FirestoreRestaurantRepository
 import com.eric.guluturn.semantic.impl.OpenAiTagGenerator
 import com.eric.guluturn.semantic.models.OpenAiModels
-import com.eric.guluturn.common.storage.ApiKeyStorage
-import com.eric.guluturn.repository.impl.FirestoreInteractionSessionRepository
 import com.eric.guluturn.ui.profile.ProfileSelectorActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -23,23 +24,23 @@ class RouletteActivity : ComponentActivity() {
     private lateinit var viewModel: RouletteViewModel
     private lateinit var adapter: RestaurantCardAdapter
     private lateinit var dialogManager: RouletteDialogManager
+    private lateinit var fullPool: List<Restaurant>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val selectedProfileUuid = ApiKeyStorage.getSelectedProfileUuid(applicationContext)
-        if (selectedProfileUuid == null) {
+        val profileUuid = ApiKeyStorage.getSelectedProfileUuid(applicationContext)
+        if (profileUuid == null) {
             startActivity(Intent(this, ProfileSelectorActivity::class.java))
-            finish()
-            return
+            finish(); return
         }
 
         binding = ActivityRouletteBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         binding.btnMenu.setOnClickListener {
-            val intent = Intent(this, com.eric.guluturn.ui.profile.ProfileSettingsActivity::class.java)
-            startActivity(intent)
+            startActivity(
+                Intent(this, com.eric.guluturn.ui.profile.ProfileSettingsActivity::class.java)
+            )
         }
 
         adapter = RestaurantCardAdapter()
@@ -47,60 +48,51 @@ class RouletteActivity : ComponentActivity() {
         binding.objectArea.adapter = adapter
 
         lifecycleScope.launch {
-            val fullPool = FirestoreRestaurantRepository().getAllRestaurants()
-            val filterEngine = StatefulFilterEngineImpl()
+            fullPool = FirestoreRestaurantRepository().getAllRestaurants()
+
             val apiKey = ApiKeyStorage.getSavedApiKey(applicationContext)
                 ?: throw IllegalStateException("API key not found")
             val semanticEngine = OpenAiTagGenerator(OpenAiModels(apiKey))
+            val filterEngine = StatefulFilterEngineImpl(
+                apiKey = apiKey,
+                semantic = semanticEngine
+            )
+
             val firestore = FirebaseFirestore.getInstance()
             val interactionRepo = FirestoreInteractionSessionRepository(firestore)
 
             viewModel = ViewModelProvider(
                 this@RouletteActivity,
-                RouletteViewModelFactory(filterEngine, semanticEngine, interactionRepo, selectedProfileUuid)
+                RouletteViewModelFactory(filterEngine, semanticEngine, interactionRepo, profileUuid)
             )[RouletteViewModel::class.java]
+
+            viewModel.initialize(fullPool)
 
             dialogManager = RouletteDialogManager(
                 context = this@RouletteActivity,
                 parent = binding.root,
-                onRejectConfirmed = { reason ->
-                    viewModel.reject(reason)
-                },
-                onAcceptConfirmed = {
-                    viewModel.acceptCurrent()
-                },
+                onRejectConfirmed = { reason -> viewModel.reject(reason) },
+                onAcceptConfirmed = { viewModel.acceptCurrent() },
                 onPlayAgain = {
-                    lifecycleScope.launch {
-                        val refreshedPool = FirestoreRestaurantRepository().getAllRestaurants()
-                        viewModel.initialize(refreshedPool)
-                    }
+                    viewModel.initialize(fullPool)
                 }
             )
 
-            viewModel.initialize(fullPool)
-
             viewModel.restaurants.observe(this@RouletteActivity) { list ->
-                println("DEBUG: Activity observed ${list.size} restaurants")
                 adapter.submitList(list)
                 binding.spinWheelView.setItems(list)
             }
-
             viewModel.spinCount.observe(this@RouletteActivity) { count ->
                 binding.decisionSectionView.updateSpinCount(count)
             }
-
-            viewModel.sessionEndEvent.observe(this@RouletteActivity) {
-                val accepted = viewModel.getAcceptedRestaurant()
-                dialogManager.showSessionEndDialog(accepted)
+            viewModel.sessionEnd.observe(this@RouletteActivity) {
+                dialogManager.showSessionEndDialog(viewModel.getAcceptedRestaurant())
             }
 
-            binding.spinButton.setOnClickListener {
-                binding.spinWheelView.spin()
-            }
-
-            binding.spinWheelView.onSpinEnd = { selectedRestaurant ->
-                viewModel.setSelectedRestaurant(selectedRestaurant)
-                dialogManager.showResultDialog(selectedRestaurant)
+            binding.spinButton.setOnClickListener { binding.spinWheelView.spin() }
+            binding.spinWheelView.onSpinEnd = { r ->
+                viewModel.setSelectedRestaurant(r)
+                dialogManager.showResultDialog(r)
             }
         }
     }

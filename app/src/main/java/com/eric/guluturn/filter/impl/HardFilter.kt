@@ -4,50 +4,40 @@ import com.eric.guluturn.common.models.Restaurant
 import com.eric.guluturn.filter.registry.TagRegistry
 
 /**
- * HardFilter applies strict exclusion rules based on user general tags.
+ * 依「使用者硬性偏好」剔除 / 保留餐廳
  *
- * It filters out restaurants that conflict with the user's "hard" preferences.
- * These tags are defined in the tag metadata (tags.yaml) as having:
- *   - polarity = "negative", strength = "hard" → must be excluded
- *   - polarity = "positive", strength = "hard" → must be included
+ * 規則 2025-05 版：
+ * 1. hard-negative (polarity=negative, strength=hard, tag_type=preference)
+ *    → banned = 該 tag + 其 opposite_tags
+ * 2. hard-positive (polarity=positive, strength=hard, tag_type=preference)
+ *    → required = 該 tag   (opposite 不需強求)
  *
- * Example use case:
- *   - If a user has "no_halal_options" as a hard negative tag,
- *     all restaurants with that tag will be excluded from the candidate list.
- *   - If a user has "need_vegetarian_options" as a hard positive tag,
- *     all restaurants lacking that tag will be excluded.
+ * Safety tag_type (若有) 亦可視同 hard-negative。
  */
 object HardFilter {
 
-    /**
-     * Filters out restaurants that violate any of the user's hard general tags.
-     *
-     * @param userGeneralTags The list of general tags extracted from user input.
-     *                        Only tags that are marked as hard in metadata will be considered.
-     * @param candidates The list of restaurants to be filtered.
-     * @return A list of restaurants that satisfy all required tags and do not contain any banned tags.
-     */
     fun apply(
         userGeneralTags: List<String>,
         candidates: List<Restaurant>
     ): List<Restaurant> {
-        // Extract user tags that are defined as hard negative (e.g., no_halal_options)
-        val bannedTags = userGeneralTags
-            .filter { TagRegistry.isHardNegative(it) }
-            .toSet()
 
-        // Extract user tags that are defined as hard positive (e.g., need_vegetarian_options)
-        val requiredTags = userGeneralTags
-            .filter { TagRegistry.isHardPositive(it) }
-            .toSet()
+        /* ---------- banned set ---------- */
+        val banned: Set<String> = userGeneralTags.flatMap { tag ->
+            val meta = TagRegistry.get(tag)
+            if (meta != null && meta.tagType == "preference"
+                && meta.polarity == "negative" && meta.strength == "hard") {
+                listOf(tag) + meta.opposite          // 自身 + 所有互斥標籤
+            } else emptyList()
+        }.toSet()
 
-        // Keep restaurants that:
-        // - do NOT contain any banned tags
-        // - DO contain all required tags
-        return candidates.filter { restaurant ->
-            val restaurantTags = restaurant.general_tags.toSet()
-            bannedTags.intersect(restaurantTags).isEmpty() &&
-                    requiredTags.all { it in restaurantTags }
+        /* ---------- required set ---------- */
+        val required: Set<String> = userGeneralTags.filter { TagRegistry.isHardPositive(it) }.toSet()
+
+        /* ---------- filter ---------- */
+        return candidates.filter { shop ->
+            val tags = shop.general_tags.toSet()
+            banned.intersect(tags).isEmpty() &&          // 不含任何被禁止
+                    required.all { it in tags }          // 含有所有必須
         }
     }
 }

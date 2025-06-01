@@ -1,5 +1,6 @@
 package com.eric.guluturn.semantic.models
 
+import android.util.Log
 import com.eric.guluturn.semantic.exceptions.OpenAiTagException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,7 +11,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.MediaType.Companion.toMediaType
 
-class OpenAiModels(private val apiKey: String, private val model: String = "gpt-4o") {
+class OpenAiModels(val apiKey: String, val model: String = "gpt-4o") {
 
     suspend fun callOpenAiApi(prompt: String): String = withContext(Dispatchers.IO) {
         val requestBody = buildRequestBody(prompt)
@@ -28,6 +29,21 @@ class OpenAiModels(private val apiKey: String, private val model: String = "gpt-
             }
             response.body?.string() ?: throw OpenAiTagException("Empty response from OpenAI")
         }
+    }
+
+    suspend fun callOpenAiApiWithRetry(prompt: String, maxRetries: Int = 3): String {
+        var lastError: Exception? = null
+
+        repeat(maxRetries) { attempt ->
+            try {
+                return callOpenAiApi(prompt)
+            } catch (e: Exception) {
+                Log.w("OpenAiRetry", "Attempt ${attempt + 1} failed: ${e.message}")
+                lastError = e
+            }
+        }
+
+        throw lastError ?: OpenAiTagException("Unknown error during OpenAI retry")
     }
 
     private fun buildRequestBody(prompt: String): okhttp3.RequestBody {
