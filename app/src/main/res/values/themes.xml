@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- App theme using Material3 -->
+
+    <!-- App main theme (不包含 splash 畫面) -->
     <style name="Theme.Guluturn" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
+
         <!-- Brand colors -->
         <item name="colorPrimary">@color/guluturn_primary</item>
         <item name="colorOnPrimary">@color/guluturn_on_primary</item>
         <item name="android:colorBackground">@color/guluturn_background</item>
         <item name="colorSurface">@color/guluturn_surface</item>
         <item name="colorOnSurface">@color/guluturn_on_surface</item>
+    </style>
+
+    <!-- 專用於 LauncherActivity 的 splash 畫面 theme -->
+    <style name="Theme.Guluturn.Splash" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <style name="RoundedCornerImageStyle" parent="">
@@ -23,4 +31,5 @@
         <item name="android:backgroundDimAmount">0.6</item>
         <item name="android:windowBackground">@drawable/blur_background_result</item>
     </style>
+
 </resources>

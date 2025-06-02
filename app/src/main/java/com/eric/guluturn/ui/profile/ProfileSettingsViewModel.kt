@@ -114,6 +114,7 @@ class ProfileSettingsViewModel(
      */
     fun logout(context: Context) {
         ApiKeyStorage.clearApiKey(context)
+        ApiKeyStorage.clearSelectedProfileUuid(context)
     }
 
     /**
