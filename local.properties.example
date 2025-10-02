@@ -1,0 +1,4 @@
+# local.properties.example
+# Copy this file to local.properties and fill in your own values
+
+openai.api.key=YOUR_OPENAI_API_KEY
