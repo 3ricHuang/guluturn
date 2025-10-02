@@ -5,6 +5,7 @@ import com.eric.guluturn.semantic.models.OpenAiModels
 import com.eric.guluturn.semantic.models.OpenAiResponseParsed
 import com.eric.guluturn.common.utils.TagConfigLoader
 import com.eric.guluturn.common.utils.TestInputLoader
+import com.eric.guluturn.semantic.iface.ParsedUserInput
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
@@ -50,7 +51,7 @@ class OpenAiApiStressTest {
 
             val elapsed = measureTimeMillis {
                 try {
-                    val result: OpenAiResponseParsed = generator.generateStructuredTags(input)
+                    val result: ParsedUserInput = generator.parseInput(input)
 
                     println("Parsed general tags: ${result.generalTags}")
                     println("Parsed specific tags: " + result.specificTags.joinToString { "${it.tag} (${it.polarity})" })

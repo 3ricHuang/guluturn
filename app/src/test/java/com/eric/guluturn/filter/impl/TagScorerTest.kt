@@ -1,5 +1,7 @@
 package com.eric.guluturn.filter.impl
 
+import com.eric.guluturn.common.models.Restaurant
+import com.eric.guluturn.common.models.SpecificTag
 import com.eric.guluturn.filter.registry.TagRegistry
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -10,30 +12,30 @@ class TagScorerTest {
         id: String,
         generalTags: List<String> = emptyList(),
         specificTags: List<SpecificTag> = emptyList()
-    ) = Restaurant(id, name = id, generalTags = generalTags, specificTags = specificTags)
+    ) = Restaurant(id, name = id, general_tags = generalTags, specific_tags = specificTags)
 
     @Test
     fun debugTagRegistry() {
         println("---------- TAG REGISTRY DEBUG ----------")
 
         val tag = "avoid_spicy_dishes"
-        val opposite = TagRegistry.conflictMap[tag]
+        val opposite = TagRegistry.oppositeMap[tag]
 
         println("Loaded tag metadata: ${TagRegistry.get(tag)}")
         println("Conflict map[$tag] = $opposite")
 
         println("All conflict keys (sample):")
-        TagRegistry.conflictMap.keys.take(5).forEach { k ->
-            println("  $k → ${TagRegistry.conflictMap[k]}")
+        TagRegistry.oppositeMap.keys.take(5).forEach { k ->
+            println("  $k → ${TagRegistry.oppositeMap[k]}")
         }
 
-        println("Total tags loaded: ${TagRegistry.conflictMap.size}")
+        println("Total tags loaded: ${TagRegistry.oppositeMap.size}")
         println("----------------------------------------")
     }
 
     @Test
     fun debugConflictMap() {
-        println("conflictMap[avoid_spicy_dishes] = ${TagRegistry.conflictMap["avoid_spicy_dishes"]}")
+        println("conflictMap[avoid_spicy_dishes] = ${TagRegistry.oppositeMap["avoid_spicy_dishes"]}")
         println("TagRegistry.get('avoid_spicy_dishes') = ${TagRegistry.get("avoid_spicy_dishes")}")
     }
 

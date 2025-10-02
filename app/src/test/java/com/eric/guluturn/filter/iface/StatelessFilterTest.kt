@@ -1,5 +1,7 @@
 package com.eric.guluturn.filter.iface
 
+import com.eric.guluturn.common.models.Restaurant
+import com.eric.guluturn.common.models.SpecificTag
 import com.eric.guluturn.filter.models.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,7 +13,7 @@ class StatelessFilterTest {
         id: String,
         generalTags: List<String> = emptyList(),
         specificTags: List<SpecificTag> = emptyList()
-    ) = Restaurant(id = id, name = id, generalTags = generalTags, specificTags = specificTags)
+    ) = Restaurant(id = id, name = id, general_tags = generalTags, specific_tags = specificTags)
 
     @Test
     fun `end-to-end filtering and scoring selects correct subset`() {
@@ -35,9 +37,9 @@ class StatelessFilterTest {
         assertTrue(result.size in 5..7)
 
         // Restaurant r1 should be excluded due to hard negative tag conflict
-        assertTrue(result.none { it.id == "r1" })
+        assertTrue(result.none { it.restaurant.id == "r1" })
 
         // Restaurant r3 should have the highest score due to double match
-        assertEquals("r3", result.maxByOrNull { it.score }?.id)
+        assertEquals("r3", result.maxByOrNull { it.score }?.restaurant?.id)
     }
 }

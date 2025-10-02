@@ -1,5 +1,6 @@
 package com.eric.guluturn.filter.impl
 
+import com.eric.guluturn.common.models.Restaurant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -8,22 +9,22 @@ class HardFilterTest {
     private val shop1 = Restaurant(
         id = "r1",
         name = "Pork Heaven",
-        generalTags = listOf("prefer_pork"),
-        specificTags = emptyList()
+        general_tags = listOf("prefer_pork"),
+        specific_tags = emptyList()
     )
 
     private val shop2 = Restaurant(
         id = "r2",
         name = "Halal King",
-        generalTags = listOf("no_halal_options"), // hard negative
-        specificTags = emptyList()
+        general_tags = listOf("no_halal_options"), // hard negative
+        specific_tags = emptyList()
     )
 
     private val shop3 = Restaurant(
         id = "r3",
         name = "Veggie Garden",
-        generalTags = listOf("prefer_vegetarian"),
-        specificTags = emptyList()
+        general_tags = listOf("prefer_vegetarian"),
+        specific_tags = emptyList()
     )
 
     @Test

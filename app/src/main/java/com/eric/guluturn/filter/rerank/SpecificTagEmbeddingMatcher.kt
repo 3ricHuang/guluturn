@@ -87,7 +87,7 @@ object SpecificTagEmbeddingMatcher {
                         Log.i("SpecificMatcher", "[${entry.restaurant.name}] ✗ '${userTag.tag}' vs '${best.tag}' (sim=$sim) < $THRESHOLD → −$PENALTY_MISMATCH")
                         PENALTY_MISMATCH
                     }
-                    userTag.polarity.equals("positive", true) -> {
+                    best.polarity.equals("positive", true) -> {
                         Log.i("SpecificMatcher", "[${entry.restaurant.name}] ✓ '${userTag.tag}' vs '${best.tag}' (sim=$sim, polarity=positive) → +$BONUS_POSITIVE")
                         BONUS_POSITIVE
                     }

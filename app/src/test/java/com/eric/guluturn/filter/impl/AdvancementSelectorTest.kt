@@ -1,13 +1,16 @@
 package com.eric.guluturn.filter.impl
 
+import com.eric.guluturn.common.models.Restaurant
 import com.eric.guluturn.filter.models.ScoredRestaurant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AdvancementSelectorTest {
 
-    private fun scored(id: String, score: Int) =
-        ScoredRestaurant(id = id, score = score)
+    private fun scored(id: String, score: Int): ScoredRestaurant {
+        val restaurant = Restaurant(id = id, name = id)
+        return ScoredRestaurant(restaurant = restaurant, score = score)
+    }
 
     @Test
     fun `returns all restaurants when less than 6 available`() {
@@ -26,7 +29,7 @@ class AdvancementSelectorTest {
         )
         val result = AdvancementSelector.select(input)
         assertEquals(6, result.size)
-        assertEquals(listOf("A", "B", "C", "D", "E", "F"), result.map { it.id })
+        assertEquals(listOf("A", "B", "C", "D", "E", "F"), result.map { it.restaurant.id })
     }
 
     @Test
@@ -38,6 +41,6 @@ class AdvancementSelectorTest {
         )
         val result = AdvancementSelector.select(input)
         assertEquals(6, result.size)
-        assertEquals(listOf("A", "B", "C", "D", "E", "F"), result.map { it.id })
+        assertEquals(listOf("A", "B", "C", "D", "E", "F"), result.map { it.restaurant.id })
     }
 }

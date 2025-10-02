@@ -4,6 +4,7 @@ import com.eric.guluturn.semantic.impl.OpenAiTagGenerator
 import com.eric.guluturn.semantic.models.OpenAiModels
 import com.eric.guluturn.semantic.models.OpenAiResponseParsed
 import com.eric.guluturn.common.utils.TagConfigLoader
+import com.eric.guluturn.semantic.iface.ParsedUserInput
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import kotlin.test.assertTrue
@@ -24,17 +25,17 @@ class OpenAiApiSmokeTest {
         }
 
         val input = "太油膩"
-        val result: OpenAiResponseParsed
+        val result: ParsedUserInput
 
         try {
-            result = generator.generateStructuredTags(input)
+            result = generator.parseInput(input)
         } catch (e: Exception) {
             fail("OpenAI call or parse failed: ${e.message}")
         }
 
         println("Parsed response: $result")
 
-        assertTrue(result.userInput.isNotBlank(), "user_input should not be blank")
+        assertTrue(result.generalTags.isNotEmpty(), "general tags should not be empty")
 
         result.generalTags.forEach {
             assertTrue(it in allowedGeneralTags, "Invalid general tag: $it")

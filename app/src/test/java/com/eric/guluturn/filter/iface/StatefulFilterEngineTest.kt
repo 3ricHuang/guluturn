@@ -1,7 +1,10 @@
 package com.eric.guluturn.filter.iface
 
+import com.eric.guluturn.common.models.Restaurant
+import com.eric.guluturn.common.models.SpecificTag
 import com.eric.guluturn.filter.models.*
 import kotlin.test.*
+import org.junit.Test
 
 class StatefulFilterEngineTest {
 
@@ -9,7 +12,7 @@ class StatefulFilterEngineTest {
         id: String,
         generalTags: List<String> = emptyList(),
         specificTags: List<SpecificTag> = emptyList()
-    ) = Restaurant(id, name = id, generalTags = generalTags, specificTags = specificTags)
+    ) = Restaurant(id, name = id, general_tags = generalTags, specific_tags = specificTags)
 
     @Test
     fun `engine filters and accumulates preferences over multiple rounds`() {
@@ -27,7 +30,7 @@ class StatefulFilterEngineTest {
             userSpecificTags = emptyList(),
             allRestaurants = allRestaurants
         )
-        assertTrue(round1.any { it.id == "r1" })
+        assertTrue(round1.any { it.restaurant.id == "r1" })
 
         // Reject r1
         engine.reject("r1")
@@ -38,8 +41,8 @@ class StatefulFilterEngineTest {
             userSpecificTags = listOf(SpecificTag("too_sweet", "negative")),
             allRestaurants = allRestaurants
         )
-        assertTrue(round2.none { it.id == "r1" }) // r1 was rejected
-        assertTrue(round2.any { it.id == "r3" })  // r3 should be recommended now
+        assertTrue(round2.none { it.restaurant.id == "r1" }) // r1 was rejected
+        assertTrue(round2.any { it.restaurant.id == "r3" })  // r3 should be recommended now
 
         // Verify internal state
         val state = engine.getState()
